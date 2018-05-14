@@ -1,0 +1,224 @@
+package com.ideal.oms.service;
+
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Service;
+
+import com.ideal.oms.entity.WifiEquipment;
+import com.ideal.oms.framework.orm.DynamicSpecifications;
+import com.ideal.oms.framework.orm.SearchFilter;
+import com.ideal.oms.repository.WifiEquipmentRepository;
+import com.ideal.oms.util.convert.Converter;
+import com.ideal.oms.util.convert.DataTypeConverter;
+
+@Service
+public class WifiEquipmentService {
+	@Resource
+	private WifiEquipmentRepository wifiEquipmentRepository;
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+
+	public Page<WifiEquipment> searchWifiEquipment(
+			Map<String, Object> searchParams, Pageable pageable) {
+		Map<String, SearchFilter> filters = SearchFilter.parse(searchParams);
+		filters.put("delFlag", new SearchFilter("delFlag",
+				SearchFilter.Operator.EQ, 0));
+		Specification<WifiEquipment> spec = DynamicSpecifications
+				.bySearchFilter(filters.values());
+		Page<WifiEquipment> customers = wifiEquipmentRepository.findAll(spec,
+				pageable);
+		return customers;
+	}
+
+	// public List<WifiEquipment> findWifiEquipment() {
+	// List<WifiEquipment> WifiEquipmentList =
+	// WifiEquipmentRepository.findAll();
+	// return WifiEquipmentList;
+	// }
+
+	public List<WifiEquipment> findById(Collection<Long> ids) {
+		return wifiEquipmentRepository.findById(ids);
+	}
+
+	public List<WifiEquipment> findWifiEquipment() {
+		// List<WifiEquipment> WifiEquipmentList =
+		// WifiEquipmentRepository.findAll();
+		// return WifiEquipmentList;
+		final List<WifiEquipment> WifiEquipmentArrayList = new ArrayList<WifiEquipment>();
+		String sql = "SELECT a.id,a.name FROM WifiEquipment a WHERE a.del_flag = 0 ORDER BY CONVERT(a.name USING gbk) COLLATE gbk_chinese_ci ASC";
+		jdbcTemplate.query(sql, new Object[] {}, new RowCallbackHandler() {
+			public void processRow(ResultSet resultSet) throws SQLException {
+				WifiEquipment WifiEquipment = new WifiEquipment();
+				WifiEquipment.setId(resultSet.getLong("id"));
+				WifiEquipment.setName(resultSet.getString("name"));
+				WifiEquipmentArrayList.add(WifiEquipment);
+			}
+		});
+		return WifiEquipmentArrayList;
+	}
+
+	public List<WifiEquipment> findWifiEquipmentListByParent() {
+		return null;
+		// return wifiEquipmentRepository.findWifiEquipmentListByParent();
+	}
+	
+	public List<WifiEquipment> findAllWifl(String site){
+	 return	wifiEquipmentRepository.findAllWifl(site);
+	}
+    
+	public List<WifiEquipment> findByIdAndPid(Long id){
+		Long pid =id;
+		 return	wifiEquipmentRepository.findByIdAndPid(id,pid);
+		}
+	
+	public List<WifiEquipment> findFirstWifl(String site,String type,String type2){
+		 return	wifiEquipmentRepository.findFirstWifl(site,type,type2);
+		}
+
+	public WifiEquipment findWiflIdBySuperEquip(String superEquip){
+		List<WifiEquipment> wifilist = wifiEquipmentRepository.findWiflIdBySuperEquip(superEquip);
+		if(wifilist != null && wifilist.size()>0){
+			return wifilist.get(0);
+		}
+		 return	null;
+		}
+	// public List<WifiEquipment> findWifiEquipmentByOperateUser(Long agentId ,
+	// Long userId) {
+	// return wifiEquipmentRepository.findWifiEquipmentByOperateUser(agentId ,
+	// userId);
+	// }
+	//
+	// public List<WifiEquipment> findWifiEquipmentByOperateUser(Long userId) {
+	// return wifiEquipmentRepository.findWifiEquipmentByOperateUser(userId);
+	// }
+	//
+	// public List<WifiEquipment> findWifiEquipmentByDataUser(Long agentId ,
+	// Long userId) {
+	// return wifiEquipmentRepository.findWifiEquipmentByDataUser(agentId ,
+	// userId);
+	// }
+	//
+	// public List<WifiEquipment> findWifiEquipmentByDataUser(Long userId) {
+	// return wifiEquipmentRepository.findWifiEquipmentByDataUser(userId);
+	// }
+	//
+	// public List<WifiEquipment> findWifiEquipmentBySaleUser(Long id) {
+	// return wifiEquipmentRepository.findWifiEquipmentBySaleUser(id);
+	// }
+	//
+	// public List<WifiEquipment> findWifiEquipmentListByParentId(Long id) {
+	// return wifiEquipmentRepository.findWifiEquipmentListByParentId(id);
+	// }
+
+	public WifiEquipment findWifiEquipmentOne(Long id) {
+		return wifiEquipmentRepository.findOne(id);
+	}
+
+	// public WifiEquipment findWifiEquipmentByName(String name) {
+	// return wifiEquipmentRepository.findWifiEquipmentByName(name);
+	// }
+
+	public WifiEquipment saveWifiEquipment(WifiEquipment WifiEquipment) {
+		return wifiEquipmentRepository.save(WifiEquipment);
+	}
+
+	public void deleteWifiEquipment(Long[] ids) {
+		Iterable<WifiEquipment> WifiEquipmentIterable = wifiEquipmentRepository
+				.findAll(Arrays.asList(ids));
+		for (WifiEquipment WifiEquipment : WifiEquipmentIterable) {
+			WifiEquipment.setDelFlag(1);
+		}
+		wifiEquipmentRepository.save(WifiEquipmentIterable);
+		// WifiEquipmentRepository.deleteInId(Arrays.asList(ids));
+	}
+
+	public List<Map<String, Object>> exportWifiEquipment(
+			Map<String, Object> pars, Pageable pageable) {
+		Converter converter = DataTypeConverter.instance();
+		List<Object> params = new ArrayList<Object>();
+		StringBuffer sql = new StringBuffer();
+        sql.append("SELECT IFNULL(c.customer_name,''),a.site,a.name,a.address,a.type,a.manufacturer,a.equip_type,IFNULL(b.name,''),a.coverage,a.project_no,a.bz,a.sequence,a.ip,a.enable,a.zcbh,a.mesh,a.mac_address FROM wifi_equipment a "
+        		+ "LEFT OUTER JOIN wifi_equipment b ON a.parent_equip = b.id "
+        		+ "LEFT OUTER JOIN customer c ON a.customer_id = c.id " 
+        		+ "where a.del_flag = 0 ");
+		Object site = pars.get("site");
+		if (site != null) {
+			sql.append("and a.site like ? ");
+			params.add(site);
+		}
+		Object name = pars.get("name");
+		if (name != null) {
+			sql.append("and a.name like ? ");
+			params.add(name);
+		}
+		sql.append("limit ?,?");
+		params.add(pageable.getPageNumber() * pageable.getPageSize());
+		params.add(pageable.getPageSize());
+		List<Map<String, Object>> list = jdbcTemplate.query(sql.toString(),
+				params.toArray(), new SQLRowMapper());
+		return list;
+	}	
+	public List<WifiEquipment> findWiflIdByCustomer(Long customer_id){
+		return wifiEquipmentRepository.findWiflIdByCustomer(customer_id);
+	}
+
+	private class SQLRowMapper implements RowMapper {
+		public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+			ResultSetMetaData rsmd = rs.getMetaData();
+			int columns = rsmd.getColumnCount();
+			Map<String, Object> row = new LinkedHashMap<String, Object>();
+			for (int i = 1; i <= columns; i++) {
+				int type = rsmd.getColumnType(i);
+				switch (type) {
+				case Types.VARCHAR:
+					row.put(rsmd.getColumnLabel(i), rs.getString(i));
+					break;
+				case Types.DATE:
+					row.put(rsmd.getColumnLabel(i),
+							rs.getDate(i) != null ? new Date(rs.getDate(i)
+									.getTime()) : null);
+					break;
+				case Types.TIME:
+					row.put(rsmd.getColumnLabel(i),
+							rs.getDate(i) != null ? new Date(rs.getDate(i)
+									.getTime()) : null);
+					break;
+				case Types.TIMESTAMP:
+					row.put(rsmd.getColumnLabel(i),
+							rs.getTimestamp(i) != null ? new Date(rs
+									.getTimestamp(i).getTime()) : null);
+					break;
+				case Types.INTEGER:
+					row.put(rsmd.getColumnLabel(i), rs.getInt(i));
+					break;
+				case Types.BIGINT:
+					row.put(rsmd.getColumnLabel(i), rs.getLong(i));
+					break;
+				default:
+					row.put(rsmd.getColumnLabel(i), rs.getObject(i));
+				}
+			}
+			return row;
+		}
+	}
+
+}

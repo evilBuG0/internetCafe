@@ -1,0 +1,303 @@
+package com.ideal.oms.security.service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.ideal.oms.entity.security.Menu;
+import com.ideal.oms.entity.security.Role;
+import com.ideal.oms.entity.security.RoleMenu;
+import com.ideal.oms.entity.security.User;
+import com.ideal.oms.entity.security.UserRole;
+import com.ideal.oms.framework.orm.DynamicSpecifications;
+import com.ideal.oms.framework.orm.SearchFilter;
+import com.ideal.oms.security.SecurityService;
+import com.ideal.oms.security.ShiroDbRealm;
+import com.ideal.oms.security.repository.MenuRepository;
+import com.ideal.oms.security.repository.RoleMenuRepository;
+import com.ideal.oms.security.repository.RoleRepository;
+import com.ideal.oms.security.repository.UserRepository;
+import com.ideal.oms.security.repository.UserRoleRepository;
+
+/**
+ * 鐢ㄦ埛绠＄悊绫�.
+ */
+@Service
+@Transactional
+public class SecurityServiceImp implements SecurityService {
+	private static Logger logger = LoggerFactory
+			.getLogger(SecurityServiceImp.class);
+	@Resource
+	private UserRepository userRepository;
+	@Resource
+	private RoleRepository roleRepository;
+	@Resource
+	private UserRoleRepository userRoleRepository;
+	@Resource
+	private RoleMenuRepository roleMenuRepository;
+	@Resource
+	private MenuRepository menuRepository;
+
+	public User findByUsername(String username) {
+		User user = userRepository.findByUsername(username);
+		return user;
+	}
+
+	public User findUserByUsername(String username) {
+		User user = userRepository.findByUsername(username);
+		return user;
+	}
+
+	public List<User> findUser(Long roleId) {
+		return userRepository.findUser(roleId);
+	}
+	
+	public User getUser(Long id) {
+		User user = userRepository.findOne(id);
+		Set<UserRole> roles = user.getRoleSet();
+		for (UserRole userRole : roles) {
+			Role role = userRole.getRole();
+			user.addRole(role.getId(), role.getRoleName());
+		}
+		return user;
+	}
+	
+	public User saveUser(User user) {
+		User u = userRepository.save(user);
+		return u;
+	}
+
+	public List<Role> getAllRole() {
+		List<Role> roles = (List<Role>) roleRepository.findAll(new Sort(
+				Sort.Direction.DESC, "id"));
+		return roles;
+	}
+
+	public Page<Role> searchRole(Map<String, Object> searchParams,
+			Pageable pageable) {
+		Map<String, SearchFilter> filters = SearchFilter.parse(searchParams);
+		filters.put("delFlag", new SearchFilter("delFlag",
+				SearchFilter.Operator.EQ, 0));
+		Specification<Role> spec = DynamicSpecifications.bySearchFilter(filters
+				.values());
+		Page<Role> roles = roleRepository.findAll(spec, pageable);
+		return roles;
+	}
+
+	public List<Role> getRoleByUser(Long id) {
+		List<Role> roles = userRoleRepository.findRoleByUser(id);
+		return roles;
+	}
+
+	public void deleteRole(Long[] ids) {
+		Iterable<Role> roles = roleRepository.findAll(Arrays.asList(ids));
+		for (Role role : roles) {
+			role.setDelFlag(1);
+		}
+		roleRepository.save(roles);
+		// roleRepository.deleteInId(Arrays.asList(ids));
+	}
+
+	public Role getRole(Long id) {
+		return roleRepository.findOne(id);
+	}
+
+	public Role saveRole(Role role) {
+		return roleRepository.save(role);
+	}
+
+	public User getLoginUser() {
+		ShiroDbRealm.ShiroUser user = (ShiroDbRealm.ShiroUser) SecurityUtils
+				.getSubject().getPrincipal();
+		return this.getUser(user.getId());
+	}
+
+	public List<Menu> buildMenu(String requestUri) {
+		User loginUser = this.getLoginUser();
+		List<Menu> r = new ArrayList<Menu>();
+		List<Menu> root = null;
+		if (loginUser.getRoleIds() == null || loginUser.getRoleIds().isEmpty()) {
+			root = new ArrayList<Menu>();
+		} else {
+			root = roleMenuRepository.findAllInRole(loginUser.getRoleIds());
+		}
+
+		if (root != null) {
+			for (Menu item : root) {
+				if (item.getParentMenu() == null) {
+					List<Menu> sub = new ArrayList<Menu>();
+					for (Menu item2 : root) {
+						if (item2.getParentMenu() != null) {
+							if (item.getId().equals(
+									item2.getParentMenu().getId())) {
+								item2.setRequestUri(requestUri);
+								sub.add(item2);
+							}
+						}
+					}
+					item.setSubMenu(sub); // 鏈�澶氫袱绾ц彍鍗�
+					item.setRequestUri(requestUri);
+					r.add(item);
+				}
+			}
+		}
+		return r;
+	}
+
+	public User findUserByUsernameAndPassword(String username, String password) {
+		return userRepository.findUserByUsernameAndPassword(username, password);
+	}
+
+	protected void entryptPassword(User user, String password) {
+		if (StringUtils.isNotEmpty(password)) {
+			// user.setPassword(DigestUtils.md5Hex(password));
+			user.setPassword(password);
+		}
+	}
+
+	public List<Menu> findAllMenus() {
+		return menuRepository.findAllMenus();
+	}
+
+	public List<Menu> getMenuByParentId() {
+		return menuRepository.getMenuByParentId();
+	}
+
+	public UserRole saveUserRole(UserRole userRole) {
+		return userRoleRepository.save(userRole);
+	}
+
+	public UserRole findUserRoleByUser(Long userId) {
+		return userRoleRepository.findUserRoleByUser(userId);
+	}
+
+	public List<RoleMenu> findRoleMenusByRoleId(Long RoleId) {
+		return roleMenuRepository.findRoleMenusByRoleId(RoleId);
+	}
+
+	public RoleMenu findRoleMenuByRoleIdAndMenuId(Long roleId, Long menuId) {
+		return roleMenuRepository.findRoleMenuByRoleIdAndMenuId(roleId, menuId);
+	}
+
+	public void deleteRoleMenu(RoleMenu roleMenu) {
+
+	}
+
+	public void deleteRoleMenus(List<RoleMenu> roleMenus) {
+		roleMenuRepository.delete(roleMenus);
+	}
+
+	public void saveRoleMenu(RoleMenu roleMenu) {
+		roleMenuRepository.save(roleMenu);
+	}
+
+	public User updateUserPwd(User user) {
+		return userRepository.save(user);
+	}
+
+	public Page<Menu> searchMenu(Map<String, Object> searchParams,
+			Pageable pageable) {
+
+		Map<String, SearchFilter> filters = SearchFilter.parse(searchParams);
+		filters.put("delFlag", new SearchFilter("delFlag",
+				SearchFilter.Operator.EQ, 0));
+		Specification<Menu> spec = DynamicSpecifications.bySearchFilter(filters
+				.values());
+		Page<Menu> menus = menuRepository.findAll(spec, pageable);
+		return menus;
+	}
+
+	public Menu getMenu(Long id) {
+		return menuRepository.findOne(id);
+	}
+
+	public String deleteMenu(Long[] ids) {
+		Iterable<Menu> menus = menuRepository.findAll(Arrays.asList(ids));
+		for (Menu menu : menus) {
+			if (isParentMenu(menu.getId())) {
+				return "0"; // 濡傛灉涓虹埗鑿滃崟 鍒犻櫎澶辫触 杩斿洖0
+			}
+			menu.setDelFlag(1L);
+		}
+		menuRepository.save(menus);
+		return "1";
+	}
+
+	public Menu saveMenu(Menu menu) {
+		return menuRepository.save(menu);
+	}
+
+	public List<Menu> selectMenu() {
+
+		return menuRepository.selectMenu();
+	}
+
+	public boolean isParentMenu(Long id) {
+		if (menuRepository.findByParentId(id) != null
+				&& menuRepository.findByParentId(id).size() > 0) // 鏈夊瓙绾ц彍鍗� 涓虹埗鑿滃崟
+			return true;
+		else
+			return false;
+	}
+
+	public List<Menu> findByParentId(Long id) {
+		return menuRepository.findByParentId(id);
+	}
+
+	// @Override
+	public Page<User> searchUser(Map<String, Object> searchParams,
+			Pageable pageable) {
+		Map<String, SearchFilter> filters = SearchFilter.parse(searchParams);
+		filters.put("delFlag", new SearchFilter("delFlag",
+				SearchFilter.Operator.EQ, 0));
+		Specification<User> spec = DynamicSpecifications.bySearchFilter(filters
+				.values());
+		Page<User> users = userRepository.findAll(spec, pageable);
+		return users;
+	}
+
+	public List<Role> findRolesByDelFlag() {
+		List<Role> roles = roleRepository.findRolesByDelFlag();
+		return roles;
+	}
+
+	public void deleteUser(Long[] ids) {
+		Iterable<User> users = userRepository.findAll(Arrays.asList(ids));
+		for (User user : users) {
+			user.setDelFlag(1);
+		}
+		userRepository.save(users);
+	}
+
+	public User findUserById(Long id) {
+		return userRepository.findUserById(id);
+	}
+
+	public List<User> findUserByCompanyId(Long company_id) {
+		return userRepository.findUserByCompanyId(company_id);
+	}
+
+	public List<User> findZqLeader() {
+		return userRepository.findZqLeader();
+	}
+
+	public User findZqLeaderUserById(Long id) {
+		return userRepository.findZqLeaderUserById(id);
+	}
+	
+}

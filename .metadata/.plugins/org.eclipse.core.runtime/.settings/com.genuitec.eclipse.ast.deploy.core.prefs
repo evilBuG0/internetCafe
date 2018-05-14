@@ -1,0 +1,26 @@
+#Tue May 30 18:27:42 CST 2017
+tomcat7Server.internetcafe.isUptoDate=true
+tomcat6Server.internetcafe.isExploded=true
+tomcat7Server.internetcafe.shouldOverwrite=false
+tomcat7Server.internetcafe.noFileCopy=false
+tomcat6Server.internetcafe.contextRoot=/internetcafe
+tomcat7Server.internetcafe.IEARProjectName=
+eclipse.preferences.version=1
+tomcat7Server.internetcafe.shouldBackup=false
+tomcat6Server.internetcafe.isDeployed=true
+tomcat7Server.internetcafe.altContextRoot=
+tomcat6Server.internetcafe.altContextRoot=
+tomcat6Server.internetcafe.isUptoDate=false
+tomcat7Server.internetcafe.deployIsOverProject=false
+tomcat6Server.internetcafe.shouldBackup=true
+tomcat7Server.internetcafe.contextRoot=/internetcafe
+tomcat7Server.internetcafe.isExploded=true
+tomcat6Server.internetcafe.noFileCopy=false
+tomcat6Server.internetcafe.type=WebDeployment
+tomcat7Server.internetcafe.type=WebDeployment
+tomcat6Server.internetcafe.shouldOverwrite=false
+tomcat6Server.internetcafe.deployIsOverProject=false
+tomcat7Server.internetcafe.deploymentPath=D\:\\Apache\\apache-tomcat-7.0.78\\webapps\\internetcafe
+tomcat6Server.internetcafe.IEARProjectName=
+tomcat7Server.internetcafe.isDeployed=true
+tomcat6Server.internetcafe.deploymentPath=C\:\\Tomcat 6.0\\webapps\\internetcafe

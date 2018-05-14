@@ -1,0 +1,15 @@
+package com.ideal.oms.web.controller.businessCode;
+
+import com.ideal.oms.web.controller.UIController;
+
+public class AbstractBusinessCodeController extends UIController{
+	
+	public final static String PORTAL_PREFIX = "/businessCode";
+	
+	@Override
+	public String getPortalPrefix() {
+		return PORTAL_PREFIX;
+	}
+
+
+}

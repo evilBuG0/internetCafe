@@ -1,0 +1,84 @@
+package com.ideal.oms.entity.security;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ideal.oms.framework.entity.AutoModel;
+import com.ideal.oms.entity.Parameter;
+
+import javax.persistence.*;
+import java.util.Date;
+
+@Entity
+@Table(name = "role")
+public class Role extends AutoModel {
+    private String roleName;
+    private String description;
+    private int delFlag;
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="type")
+    private Parameter type;
+
+    private Date createDate;
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="create_user")
+    private User createUser;
+
+    public Role() {
+        super();
+    }
+
+    public Role(Long id) {
+        super(id);
+    }
+
+    public int getDelFlag() {
+        return delFlag;
+    }
+
+    public void setDelFlag(int delFlag) {
+        this.delFlag = delFlag;
+    }
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Column(name = "create_date")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08:00")
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public User getCreateUser() {
+        return createUser;
+    }
+
+    public void setCreateUser(User createUser) {
+        this.createUser = createUser;
+    }
+
+    public Parameter getType() {
+        return type;
+    }
+
+    public void setType(Parameter type) {
+        this.type = type;
+    }
+}

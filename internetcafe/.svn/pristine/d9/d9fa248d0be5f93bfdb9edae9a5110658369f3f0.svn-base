@@ -1,0 +1,169 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@include file="/WEB-INF/jsp/common/taglib.jsp" %>
+<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %>
+   <!--   <link rel="stylesheet" href="${ctxRoot}/zTree/css/demo.css" type="text/css">-->
+	<link rel="stylesheet" href="${ctxRoot}/zTree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+	<script type="text/javascript" src="${ctxRoot}/zTree/js/jquery.ztree.core.js"></script>
+<div class="page-content">
+
+<div class="sidebar" id="bb" style="background-color:#fff;height:100%;">
+	<div class="ztree" id="ztree" style="margin-left:10px;margin-top:10px;">
+		<ul id="treeDemo"></ul>   
+	</div>
+	 <div class="sidebar-collapse" id="aa" style="background-color:#fff">
+	        <i class="icon-double-angle-left" data-icon1="icon-double-angle-left" data-icon2="icon-double-angle-right"></i>
+	</div>	
+   </div>
+</div>
+
+	
+	<script type="text/javascript">
+		var setting = {
+			data: {
+				simpleData: {
+					enable: true
+				}
+			},
+			callback: {
+				beforeClick: getCurrentNode,
+				onAsyncSuccess: onAsyncSuccess
+            }
+		};
+        //var names=["外滩美术馆","英迪格","莱福士"];
+		/**var zNodes =[
+			{ id:1, pId:0, name:"wifl", open:false, iconOpen:"${ctxRoot}/zTree/css/zTreeStyle/img/diy/1_open.png", iconClose:"${ctxRoot}/zTree/css/zTreeStyle/img/diy/1_close.png"},
+			{ id:11, pId:1, name:"外滩美术馆", icon:"${ctxRoot}/zTree/css/zTreeStyle/img/diy/2.png",url:'${ctx}/Network.do?site="'+names[0]+'"'},
+			{ id:12, pId:1, name:"英迪格", icon:"${ctxRoot}/zTree/css/zTreeStyle/img/diy/3.png",url:'${ctx}/Network.do?site="'+names[1]+'"'},
+			{ id:13, pId:1, name:"莱福士", icon:"${ctxRoot}/zTree/css/zTreeStyle/img/diy/5.png",url:'${ctx}/Network.do?site="'+names[2]+'"'},
+			{ id:2, pId:0, name:"全球眼", open:false, icon:"${ctxRoot}/zTree/css/zTreeStyle/img/diy/4.png"},
+			{ id:3, pId:0, name:"裸光纤", open:false ,icon:"${ctxRoot}/zTree/css/zTreeStyle/img/diy/3.png"},
+            { id:4, pId:0, name:"客流", open:false ,icon:"${ctxRoot}/zTree/css/zTreeStyle/img/diy/4.png"},
+            { id:5, pId:0, name:"车载", open:false ,icon:"${ctxRoot}/zTree/css/zTreeStyle/img/diy/5.png"}
+		];*/	
+
+        var zNodes = ${networklistStr};
+		//alert(zNodes);
+		
+		function getCurrentNode(treeId,treeNode) {
+			curNode = treeNode;
+			 onAsyncSuccess(curNode);
+        }
+
+         function onAsyncSuccess(treeNode){
+		   var s = treeNode.name;
+		   s = encodeURI(s);
+		   console.info("site:"+s);
+		   var id = treeNode.id;
+		   loadUrl('NetworkPhoto', '${ctx}/network_wifl_pop.do?site='+s+'&customerid='+id+'');
+          }
+		
+		$(document).ready(function(){
+			$.fn.zTree.init($("#treeDemo"), setting, zNodes);
+		});
+		
+		
+		//点击伸缩
+		var a = document.getElementById('aa');
+		var treeDemo = document.getElementById('treeDemo');
+		var flag = 0;
+		a.onclick = function(){
+	    var sidebar = document.getElementById('bb');
+		var icon = document.getElementById('aa').querySelector('[class*="icon-"]');
+		var $icon1 = icon.getAttribute('data-icon1');//the icon for expanded state
+		var $icon2 = icon.getAttribute('data-icon2');//the icon for collapsed state
+
+		if(flag == 0) {
+			ace.addClass(sidebar , 'menu-min');
+			ace.removeClass(icon , $icon1);	
+			ace.addClass(icon , $icon2);
+			ace.settings.set('sidebar', 'collapsed');
+			flag = 1;
+			treeDemo.style.display = "none";
+		} else {
+			ace.removeClass(sidebar , 'menu-min');
+			ace.removeClass(icon , $icon2);
+			ace.addClass(icon , $icon1);
+
+			ace.settings.unset('sidebar', 'collapsed');
+			flag = 0;
+			treeDemo.style.display = "block";
+		}
+		$("#content-right").width($("#page-content").width()-$("#content-left").width()-20);
+		var height = $("#content-right").height()-30;
+		if(height < 510)
+			height = 510;
+		$("#ztree").height(height);
+		$("#menutree").height($("#ztree").height()+20);
+	}
+	//间隔30秒轮播
+	 var load_time = null;  
+     var down_time = null; 
+	 var zNodes2 = ${networklistStr2};
+	 var i = 0;
+	 var n = zNodes2.length;	 
+       window.onload=function(){  
+           flag = false;  
+            //打开页面30秒不操作就跳转  
+           load_time = setInterval(function A(){
+				if(i<n){
+					if(zNodes2[i].pId != 0){
+					   var s = zNodes2[i].name;
+					   s = encodeURI(s);
+					   console.info("site:"+s);
+					   var id = zNodes2[i].id;
+					   loadUrl('NetworkPhoto', '${ctx}/network_wifl_pop.do?site='+s+'&customerid='+id+'');
+					}
+					i++;
+				}else{
+					i = 0
+				};
+            },30000);  
+        }  
+          
+       document.onmousedown=function(){  
+           //停止时钟load_time  
+           clearInterval(load_time);  
+           if(null != down_time){  
+               //停止时钟down_time  
+               clearInterval(down_time);  
+           }  
+           //30秒不操作就跳转  
+           down_time = setInterval(function A(){
+				if(i<n){
+					if(zNodes2[i].pId != 0){
+					   var s = zNodes2[i].name;
+					   s = encodeURI(s);
+					   console.info("site:"+s);
+					   var id = zNodes2[i].id;
+					   loadUrl('NetworkPhoto', '${ctx}/network_wifl_pop.do?site='+s+'&customerid='+id+'');
+					}
+					i++;
+				}else{
+					i = 0
+				};
+            },30000); 
+       }   
+	
+
+
+
+/**
+var zNodes2 = ${networklistStr2};
+	 var i = 0;
+	 var n = zNodes2.length;
+var timer = setInterval(function A(){
+	if(i<n){
+		if(zNodes2[i].pId != 0){
+		   var s = zNodes2[i].name;
+		   s = encodeURI(s);
+		   console.info("site:"+s);
+		   var id = zNodes2[i].id;
+		   loadUrl('NetworkPhoto', '${ctx}/NetworkPhoto_wifl_pop.do?site='+s+'&customerid='+id+'');
+		}
+		i++;
+	}else{
+		i = 0
+	};
+},3000);*/
+	</script>

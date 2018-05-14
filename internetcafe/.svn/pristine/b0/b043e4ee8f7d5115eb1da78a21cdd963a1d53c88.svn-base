@@ -1,0 +1,43 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@include file="/WEB-INF/jsp/common/taglib.jsp" %>
+<head>
+<link rel="stylesheet" href="${ctxRoot}/static/framework/selectator/fm.selectator.jquery.css" type="text/css">
+<script src="${ctxRoot}/static/framework/selectator/fm.selectator.jquery.js"></script>
+<link rel="stylesheet" href="${ctxRoot}/static/css/jquery-ui.min.css">
+<script src="${ctxRoot}/static/js/jquery-ui-1.10.3.min.js"></script>
+<script src="${ctxRoot}/static/js/base64.js"></script>
+<script src="${ctxRoot}/static/js/scriptLib.js"></script>
+
+</head>
+<form action="${ctx}/save_malfunction.do" method="post" onsubmit="return validate(this)">
+    <input type="hidden" name="id" value="${malfunctionInfo.id}">
+    <div class="clearfix">
+        <div class="form_g_li">
+            <label class="col_left_li"> <span>*</span>故障名称 </label>
+            <div class="col_right_li">
+                <c:choose>
+                    <c:when test="${malfunctionInfo.id!=null}">
+                        <input type="text" class="inp" name="malfunctionName" value="${malfunctionInfo.malfunctionName}"/>
+                    </c:when>
+                    <c:otherwise>
+                        <input type="text" class="inp required" name="malfunctionName"/>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li"> <span>*</span>所属业务</label>
+            <div class="col_right_li">
+                <select id="businessId" name="businessId">
+                    <c:forEach var="business" items="${businessList}">
+                        <option value="${business.id}" <c:if test="${business.id==malfunctionInfo.businessCode.id}">selected</c:if>>${business.businessName}</option>
+                    </c:forEach>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="ui_t_foot">
+        <button class="btn" type="button" onclick="win.close();">取消</button>
+        <button class="btn btn-primary" type="submit">确定</button>
+    </div>
+</form>

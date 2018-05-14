@@ -1,0 +1,179 @@
+package com.ideal.oms.entity.security;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ideal.oms.framework.entity.AutoModel;
+
+import javax.persistence.*;
+import java.util.Date;
+import java.util.List;
+
+@Entity
+@Table(name = "menu")
+public class Menu extends AutoModel {
+    private String menuName;
+    private String url;
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="parent_id")
+    @JsonIgnore
+    private Menu parentMenu;
+
+    private String code;
+    private Integer type;
+    private String cssClass;
+    @Transient
+    @JsonIgnore
+    private List<Menu> subMenu;
+    @Transient
+    private String requestUri;
+
+    public Menu() {
+        super();
+    }
+
+    public Menu(Long id) {
+        super(id);
+    }
+
+    private Date createDate;
+    private Date lastUpdateDate;
+    private Long delFlag;
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="create_user")
+    @JsonIgnore
+    private User createUser;
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="last_update_user")
+    @JsonIgnore
+    private User lastUpdateUser;
+
+    @Transient
+    private String isParentMenu;    //非数据库字段  是否为父级菜单  1 是   0 否
+
+    public String getIsParentMenu() {
+        return isParentMenu;
+    }
+
+    public void setIsParentMenu(String isParentMenu) {
+        this.isParentMenu = isParentMenu;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getMenuName() {
+        return menuName;
+    }
+
+    public void setMenuName(String menuName) {
+        this.menuName = menuName;
+    }
+
+    public Menu getParentMenu() {
+        return parentMenu;
+    }
+
+    public void setParentMenu(Menu parentMenu) {
+        this.parentMenu = parentMenu;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
+    public String getCssClass() {
+        return cssClass;
+    }
+
+    public void setCssClass(String cssClass) {
+        this.cssClass = cssClass;
+    }
+
+    public List<Menu> getSubMenu() {
+        return subMenu;
+    }
+
+    public void setSubMenu(List<Menu> subMenu) {
+        this.subMenu = subMenu;
+    }
+
+    public String getRequestUri() {
+        return requestUri;
+    }
+
+    public void setRequestUri(String requestUri) {
+        this.requestUri = requestUri;
+    }
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public Date getLastUpdateDate() {
+        return lastUpdateDate;
+    }
+
+    public void setLastUpdateDate(Date lastUpdateDate) {
+        this.lastUpdateDate = lastUpdateDate;
+    }
+
+    public Long getDelFlag() {
+        return delFlag;
+    }
+
+    public void setDelFlag(Long delFlag) {
+        this.delFlag = delFlag;
+    }
+
+    public User getCreateUser() {
+        return createUser;
+    }
+
+    public void setCreateUser(User createUser) {
+        this.createUser = createUser;
+    }
+
+    public User getLastUpdateUser() {
+        return lastUpdateUser;
+    }
+
+    public void setLastUpdateUser(User lastUpdateUser) {
+        this.lastUpdateUser = lastUpdateUser;
+    }
+
+    public boolean getIsActive() {
+        //for jstl 1
+        if (requestUri == null || requestUri.equals("")
+                || url == null || url.equals("")) {
+            return false;
+        }
+        if(url.startsWith(requestUri)){
+            return true;
+        }else{
+            return false;
+        }
+    }
+}

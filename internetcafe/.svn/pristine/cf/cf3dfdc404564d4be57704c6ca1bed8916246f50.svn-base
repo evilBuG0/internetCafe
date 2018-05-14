@@ -1,0 +1,192 @@
+package com.ideal.oms.web.controller.businessCode;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.WebUtils;
+
+import com.ideal.oms.entity.BusinessCode;
+import com.ideal.oms.entity.MaintainContract;
+import com.ideal.oms.entity.NetworkDrawing;
+import com.ideal.oms.framework.web.json.JsonObject;
+import com.ideal.oms.repository.BusinessRepository;
+import com.ideal.oms.service.BusinessService;
+import com.ideal.oms.web.controller.contract.ContractController;
+
+
+@Controller
+@RequestMapping(AbstractBusinessCodeController.PORTAL_PREFIX)
+public class BusinessCodeController extends AbstractBusinessCodeController{
+	Logger logger = LoggerFactory.getLogger(ContractController.class);
+
+	@Resource
+	private BusinessService businessService;
+	
+	@Resource
+	private BusinessRepository businessRepository;
+	
+	@RequestMapping("businessCode_manage")
+	public void index(Model model, HttpServletRequest request) {
+		Map<String, Object> searchParams = WebUtils.getParametersStartingWith(
+				request, "Q_");
+		Sort sort = new Sort(Sort.Direction.DESC, "id");
+		Page<BusinessCode> page = businessService.searchBusinessList(searchParams,
+				buildPageRequest(request, 5, sort));
+		model.addAttribute("page", page);
+	}
+
+	@RequestMapping("edit_businessCode_pop")
+	public void edit(Model model,
+			@RequestParam(value = "id", required = false) Long id) {
+		BusinessCode businessCodeInfo = null;
+		if (id != null) {
+			businessCodeInfo = businessService.findBusinessOne(id);
+		}
+		model.addAttribute("businessCodeInfo", businessCodeInfo);
+	}
+	
+	@RequestMapping("save_businessCode_pop")
+	@ResponseBody
+	public JsonObject save(Model model, @RequestParam(value = "id") Long id,
+			@RequestParam(required = false) String businessCode,
+			@RequestParam(required = false) String businessName ) throws Exception{
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		BusinessCode business = new BusinessCode();
+		if (id != null) {
+			business = businessService.findBusinessOne(id);
+			business.setBusinessCode(businessCode);
+			business.setBusinessName(businessName);
+			businessService.saveBusiness(business);
+		} else {
+			business.setBusinessCode(businessCode);
+			business.setBusinessName(businessName);
+			business.setCreateDate(dateFormat.parse(dateFormat.format(new Date())));
+			business.setDelFlag(0L);
+			businessService.saveBusiness(business);
+		}
+		return JsonObject.success();
+	}
+
+	@RequestMapping("delete_businessCode_pop.do")
+	@ResponseBody
+	public JsonObject delete(HttpServletRequest request,
+							@RequestParam(value = "id") Long[] ids) {
+		if (ids != null) {
+			businessService.deleteBusiness(ids);
+//			String path = "E:/中区局客户网络支撑及监控系统/business/";
+			String path = "home/usr/business/";
+			for(int i=0;i<ids.length;i++){
+				BusinessCode businessCode = businessService.findBusinessOne(ids[i]);
+				String business_code = businessCode.getBusinessCode();
+				path += business_code;
+				deleteDirectory(path);
+			}
+		}
+		return JsonObject.success();
+	}
+	
+
+	@RequestMapping("upload_img_pop")
+    public void uploadFile(Model model,HttpServletRequest request,
+    		@RequestParam(value = "id") Long id) {
+		BusinessCode businessCodeInfo = new BusinessCode();
+		if(id !=null){
+			businessCodeInfo.setId(id);
+		}
+		model.addAttribute("businessCodeInfo", businessCodeInfo);
+    }
+	
+	@RequestMapping("img_upload")
+    public void upload(HttpServletRequest request, HttpServletResponse response,
+    						@RequestParam(value = "id") Long id,
+    						@RequestParam(value = "number") Integer number,
+                            @RequestParam("file") MultipartFile mfile) throws Exception {
+		try {
+			BusinessCode businessCode = businessService.findBusinessOne(id);
+			String business_code = businessCode.getBusinessCode();
+			String path = request.getSession().getServletContext().getRealPath("/static/business/");
+		    path += business_code;
+		    InputStream stream = mfile.getInputStream();
+		    File file = new File(path);
+		    if(!file.isDirectory() && !file.exists()){
+		    	((File) file).mkdirs();   
+		    }
+		    OutputStream bos = new FileOutputStream(path + "/" + mfile.getOriginalFilename());
+		    int bytesRead = 0;
+		    byte[] buffer = new byte[1024*1024*10];
+		    while ((bytesRead = stream.read(buffer, 0, 1024*1024*10)) != -1) {
+		    	bos.write(buffer, 0, bytesRead);
+		    }
+		    bos.close();
+		    stream.close();
+		    businessCode.setImgUrl("http://101.227.253.7:8080/safecity/static/business/" + business_code + "/" + mfile.getOriginalFilename());
+			businessCode.setNumber(number);
+			businessService.saveBusiness(businessCode);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setHeader("Content-type", "text/html;charset=UTF-8");
+			PrintWriter out = response.getWriter();
+            out.println("<script> alert('文件上传失败！'); </script>");
+		}
+    }
+	
+	 /** 
+     * 删除单个文件 
+     * @param   sPath    被删除文件的文件名 
+     */  
+    public static void deleteFile(String sPath) {  
+    	File file = new File(sPath);  
+        if (file.isFile() && file.exists()) {  
+            file.delete();  
+        }  
+    }  
+    
+    /** 
+     * 删除目录（文件夹）以及目录下的文件 
+     * @param   sPath 被删除目录的文件路径 
+     */  
+    public static void deleteDirectory(String sPath) {  
+        if (!sPath.endsWith(File.separator)) {  
+            sPath = sPath + File.separator;  
+        }  
+        File dirFile = new File(sPath);  
+        File[] files = dirFile.listFiles();  
+        for (int i = 0; i < files.length; i++) {  
+            //删除子文件  
+            if (files[i].isFile()) {  
+                deleteFile(files[i].getAbsolutePath()); 
+                break;
+            } //删除子目录  
+            else {  
+                deleteDirectory(files[i].getAbsolutePath());  
+                break;
+            }  
+        }  
+      //删除当前目录  
+       dirFile.delete();
+    }  
+
+}

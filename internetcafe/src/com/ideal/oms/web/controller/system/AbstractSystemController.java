@@ -1,0 +1,12 @@
+package com.ideal.oms.web.controller.system;
+
+import com.ideal.oms.web.controller.UIController;
+
+public class AbstractSystemController extends UIController {
+    public final static String PORTAL_PREFIX = "/system";
+
+    @Override
+    public String getPortalPrefix() {
+        return PORTAL_PREFIX;
+    }
+}

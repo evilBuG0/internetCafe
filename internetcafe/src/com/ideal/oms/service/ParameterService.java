@@ -1,0 +1,71 @@
+package com.ideal.oms.service;
+
+import com.ideal.oms.entity.Parameter;
+import com.ideal.oms.framework.orm.DynamicSpecifications;
+import com.ideal.oms.framework.orm.SearchFilter;
+import com.ideal.oms.repository.ParameterRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+@Service
+public class ParameterService {
+    @Resource
+    private ParameterRepository parameterRepository;
+
+    public List<Parameter> findParameterListByType(String type) {
+        List<Parameter> parameterList = parameterRepository.findParameterListByType(type);
+        return parameterList;
+    }
+
+    public Page<Parameter> searchParameter(Collection<SearchFilter> filters, Pageable pageable){
+        Specification<Parameter> specification = DynamicSpecifications.bySearchFilter(filters);
+        Page<Parameter> parameters = parameterRepository.findAll(specification, pageable);
+        return parameters;
+    }
+
+    public Parameter findParameterOne(Long id) {
+        return parameterRepository.findOne(id);
+    }
+
+    public Parameter saveParameter(Parameter parameter) {
+        return parameterRepository.save(parameter);
+    }
+
+    public void deleteParameter(Long[] ids) {
+        //把选中的记录删除状态置为删除（1L）
+        Iterable<Parameter> parameters = parameterRepository.findAll(Arrays.asList(ids));
+        for(Parameter parameter : parameters){
+            parameter.setDelFlag(1L);
+        }
+        parameterRepository.save(parameters);
+        //把选中的记录对应的子项删除状态置为删除（1L）
+        List<Parameter> parameterList = parameterRepository.findByParentIds(Arrays.asList(ids));
+        if (null != parameterList || !parameterList.isEmpty()) {
+            Long[] parameterIds = new Long[parameterList.size()];
+            for(int i = 0; i < parameterList.size(); i++) {
+                parameterIds[i] = parameterList.get(i).getId();
+            }
+            deleteParameter(parameterIds);
+        }
+        //parameterRepository.deleteInId(Arrays.asList(ids));*/
+    }
+
+    public List<Parameter> findByParentId(Long id) {
+        return parameterRepository.findByParentId(id);
+    }
+
+    public List<Parameter> findByParent(Parameter parameter) {
+        return parameterRepository.findByParent(parameter);
+    }
+
+    public Parameter findByCode(String code) {
+        return parameterRepository.findByCode(code);
+    }
+}

@@ -1,0 +1,12 @@
+package com.ideal.oms.web.controller.report;
+
+import com.ideal.oms.web.controller.UIController;
+
+public class AbstractReportController extends UIController {
+	public final static String PORTAL_PREFIX = "/report";
+
+	@Override
+	public String getPortalPrefix() {
+		return PORTAL_PREFIX;
+	}
+}

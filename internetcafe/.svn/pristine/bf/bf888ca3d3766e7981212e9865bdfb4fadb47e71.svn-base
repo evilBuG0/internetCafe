@@ -1,0 +1,7 @@
+#oms database
+jdbc.oms.driver_class=com.mysql.jdbc.Driver
+jdbc.oms.url=jdbc:mysql://localhost:3306/oms?useUnicode=true&characterEncoding=UTF-8
+jdbc.oms.username=root
+jdbc.oms.password=sa
+
+

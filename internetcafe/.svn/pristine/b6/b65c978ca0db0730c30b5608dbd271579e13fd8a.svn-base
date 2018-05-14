@@ -1,0 +1,60 @@
+package com.ideal.oms.service;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import com.ideal.oms.entity.Customer;
+import com.ideal.oms.entity.MaintainCompany;
+import com.ideal.oms.entity.MaintainContract;
+import com.ideal.oms.framework.orm.DynamicSpecifications;
+import com.ideal.oms.framework.orm.SearchFilter;
+import com.ideal.oms.repository.ContractRepository;
+import com.ideal.oms.security.service.SecurityServiceImp;
+
+@Service
+public class ContractService {
+	
+	@Resource
+	private ContractRepository contractRepository;
+	
+	public Page<MaintainContract> searchContractlist(Map<String, Object> searchParams,
+			Pageable pageable) {
+		Map<String, SearchFilter> filters = SearchFilter.parse(searchParams);
+		filters.put("delFlag", new SearchFilter("delFlag",
+				SearchFilter.Operator.EQ, 0));
+		Specification<MaintainContract> spec = DynamicSpecifications
+				.bySearchFilter(filters.values());
+		Page<MaintainContract> contractlist = contractRepository.findAll(spec, pageable);
+		return contractlist;
+	}
+
+	public MaintainContract findContractOne(Long id) {
+		return contractRepository.findOne(id);
+	}
+
+	public void saveContract(MaintainContract contract) {
+		contractRepository.save(contract);
+	}
+
+	public void deleteContract(Long[] ids) {
+		Iterable<MaintainContract> ContractStates = contractRepository.findAll(Arrays
+				.asList(ids));
+		for (MaintainContract ContractState : ContractStates) {
+			ContractState.setDelFlag(Long.valueOf(1));
+		}
+		contractRepository.save(ContractStates);
+
+	}
+
+	public List<MaintainContract> findAll() {
+		return contractRepository.findAll();
+	}
+}

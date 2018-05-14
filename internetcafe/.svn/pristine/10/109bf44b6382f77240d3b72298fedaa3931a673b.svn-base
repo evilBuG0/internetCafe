@@ -1,0 +1,95 @@
+package com.ideal.oms.entity;
+
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ideal.oms.entity.security.User;
+import com.ideal.oms.framework.entity.AutoModel;
+
+/**
+ * Created by Administrator on 16-2-23.
+ */
+@Entity
+@Table(name = "workorder_operate_record")
+public class WorkorderOperateRecord extends AutoModel {
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "workorder_id")
+	@JsonIgnore
+	private Workorder workorder;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "create_user")
+	@JsonIgnore
+	private User user;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "workorder_state")
+	@JsonIgnore
+	private WorkorderState workorderState;
+	private String action;
+	private String bz;
+	private Date operateDate;
+
+	public WorkorderOperateRecord() {
+	}
+
+	public WorkorderOperateRecord(Long id) {
+		super(id);
+	}
+
+	public Workorder getWorkorder() {
+		return workorder;
+	}
+
+	public void setWorkorder(Workorder workorder) {
+		this.workorder = workorder;
+	}
+
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public WorkorderState getWorkorderState() {
+		return workorderState;
+	}
+
+	public void setWorkorderState(WorkorderState workorderState) {
+		this.workorderState = workorderState;
+	}
+
+	public String getBz() {
+		return bz;
+	}
+
+	public void setBz(String bz) {
+		this.bz = bz;
+	}
+
+	public Date getOperateDate() {
+		return operateDate;
+	}
+
+	public void setOperateDate(Date operateDate) {
+		this.operateDate = operateDate;
+	}
+
+	public String getAction() {
+		return action;
+	}
+
+	public void setAction(String action) {
+		this.action = action;
+	}
+	
+	
+}

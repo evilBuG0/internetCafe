@@ -1,0 +1,170 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@include file="/WEB-INF/jsp/common/taglib.jsp" %>
+<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %>
+<html>
+<title>创建合同</title>
+<head>
+    <script type="text/javascript">
+        function detail(id){
+        	$panel = $("#ContractDetails");
+            $panel.empty();
+            $panel.load('contract_detail_pop.do', {'id': id}, function() { });
+            $("#ContractDetails").dialog({
+                closeOnEscape: false,
+                resizable: true,
+                draggable: true,
+                height: 400,
+                width: 800,
+                modal: true,
+                buttons: {
+                    "关闭": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        }
+        
+        function searchFile(id){
+        	$panel = $("#ContractFiles");
+            $panel.empty();
+            $panel.load('search_file_pop.do', {'id': id}, function() { });
+            $("#ContractFiles").dialog({
+                closeOnEscape: false,
+                resizable: true,
+                draggable: true,
+                height: 400,
+                width: 800,
+                modal: true,
+                buttons: {
+                    "关闭": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        }
+        
+    </script>
+</head>
+<body>
+<div class="breadcrumbs" id="breadcrumbs">
+    <ul class="breadcrumb">
+        <li>
+            <i class="icon-home home-icon"></i>
+            <a href="${ctxRoot}">首页</a>
+        </li>
+        <li>
+           客户管理
+        </li>
+        <li class="active">
+            维保合同
+        </li>
+    </ul>
+</div>
+<div id="ContractDetails" title="合同详情" style="display: none;"></div>
+<div id="ContractFiles" title="附件" style="display: none;"></div>
+<div class="page-content">
+    <form action="${ctx}/contract_manage.do" method="post" onsubmit="return search(this);">
+        <div class="row_height_s">
+            <div class="form-group_li">
+                <input type="text"  placeholder="合同编号" class="col_d" value="${param.Q_LIKE_contractNo}"
+                       name="Q_LIKE_contractNo"/>
+            </div>
+			<div class="form-group_li" style="line-height: 30px;">
+	        	<select name="Q_EQ_customer.id" id="customer" style="width: 160px;height: 34px">
+	              <option value="">-请选择客户-</option>
+	              <c:forEach var="item" items="${list_customer}">
+	                <option value="${item.id}" <c:if test="${item.id==param['Q_customer.id']}">selected</c:if>>${item.customerName}</option>
+	              </c:forEach>
+	            </select>
+            </div>
+        	<div class="form-group_li" style="line-height: 30px;">
+	        	<select name="Q_EQ_company.id" id="company" style="width: 160px;height: 34px">
+	              <option value="">-请选择代维公司-</option>
+	              <c:forEach var="item" items="${list_company}">
+	                <option value="${item.id}" <c:if test="${item.id==param['Q_company.id']}">selected</c:if>>${item.companyName}</option>
+	              </c:forEach>
+	            </select>
+            </div>
+            <button class="btn btn-primary btn-sm" type="submit">搜索
+                <i class="icon-search icon-on-right bigger-110"></i>
+            </button>
+        </div>
+    </form>
+    <div class="row row_height_y">
+        <div class="ui-pg-div icon_left">
+            <button class="btn btn-minier btn-primary"
+                    onClick="win.init({title:'添加合同',rel:''}).show('${ctx}/edit_contract_pop.do',{})">新增
+            </button>
+        </div>
+        <div class="ui-pg-div icon_left">
+            <button class="btn btn-minier btn-info"
+                    onClick="win.init({title:'修改合同'}).show('${ctx}/edit_contract_pop.do?id={id}',{})">修改
+            </button>
+        </div>
+        <div class="ui-pg-div icon_left">
+            <button class="btn btn-minier btn-danger"
+                    onClick="win.init({title:'确定要删除吗？'}).confirm('${ctx}/delete_contract_pop.do?id={id}')">删除
+            </button>
+        </div>
+        <div class="ui-pg-div icon_left">
+        	<button class="btn btn-minier btn-primary"
+                   onClick="win.init({title:'附件上传'}).show('${ctx}/upload_file_pop.do?id={id}',{})">附件上传
+            </button>
+        </div>
+    </div>
+    <div class="table-responsive" >
+        <table class="table table-striped table-bordered table-hover dataTable">
+            <thead >
+            <tr >
+                <th width="1%" class="center">
+                    <label>
+                        <input type="checkbox" class="ace" onclick="checkAll(this);">
+                        <span class="lbl"></span>
+                    </label>
+                </th>
+                <th >合同编号</th>
+                <th >客户名称</th>
+                <th >代维公司</th>
+                <th >合同状态</th>
+                <th >开始日期</th>
+                <th >结束日期</th>
+                <th >创建日期</th>
+                <th >操作</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <c:forEach items="${page.content}" var="item">
+                <tr>
+                    <td class="center">
+                        <label>
+                            <input type="checkbox" class="ace" name="id" value="${item.id}"/>
+                            <span class="lbl"></span>
+                        </label>
+                    </td>
+                    <td>${item.contractNo}</td>
+                    <td>${item.customer.customerName}</td>
+                    <td>${item.company.companyName}</td>
+                    <td>${item.state.name}</td>
+                    <td><fmt:formatDate value="${item.startDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+                    <td><fmt:formatDate value="${item.endDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+                    <td><fmt:formatDate value="${item.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+                    <td>
+                    	<input title="查看合同详情" style="width:22px;length:22px;" type='image' src="${ctxRoot}/static/images/search.png" 
+                    			onclick="detail('${item.id}')"/>
+                    	<input title="查看合同附件" style="width:22px;length:22px;" type='image' src="${ctxRoot}/static/images/history_feedback.png" 
+                    			onClick="searchFile('${item.id}')"/>
+                    </td>
+                </tr>
+            </c:forEach>
+            </tbody>
+        </table>
+
+        <div class="row row_height_x message-footer">
+            <tags:page page="${page}"/>
+        </div>
+    </div><!-- /.table-responsive -->
+</div>
+</body>
+</html>

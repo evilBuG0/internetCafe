@@ -1,0 +1,33 @@
+package com.ideal.oms.service;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ideal.oms.entity.DispatchQueue;
+import com.ideal.oms.repository.DispatchQueueRepository;
+
+/**
+ * Created by Administrator on 16-2-23.
+ */
+@Service
+public class DispatchQueueService {
+	@Resource
+	private DispatchQueueRepository dispatchQueueRepository;
+	
+	public List<DispatchQueue> findAll(){
+		return dispatchQueueRepository.findAll();
+	}
+	
+	public void saveDispatchQueue(DispatchQueue dispatchQueue){
+		dispatchQueueRepository.save(dispatchQueue);
+	}
+	public void delDispatchQueue(List<DispatchQueue> dispatchQueueList){
+		dispatchQueueRepository.delete(dispatchQueueList);
+	}
+	
+	
+	
+}

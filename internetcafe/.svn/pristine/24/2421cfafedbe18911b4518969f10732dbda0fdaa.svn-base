@@ -1,0 +1,29 @@
+package com.ideal.oms.service;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ideal.oms.entity.WorkorderHang;
+import com.ideal.oms.repository.WorkorderHangRepository;
+
+/**
+ * Created by Administrator on 16-2-23.
+ */
+@Service
+public class WorkorderHangService {
+	@Resource
+	private WorkorderHangRepository workorderHangRepository;
+	
+	public void saveWorkorderHang(WorkorderHang workorderHang){
+		workorderHangRepository.save(workorderHang);
+	}
+	
+	public List<WorkorderHang> findHangByWorkorderId(Long workOrderId){
+		return workorderHangRepository.findHangByWorkorderId(workOrderId);
+	}
+
+	
+}

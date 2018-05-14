@@ -1,0 +1,14 @@
+package com.ideal.oms.web.controller.carouselFigure;
+
+import com.ideal.oms.web.controller.UIController;
+
+public class AbstractCarouselFigureController extends UIController{
+	
+	public final static String PORTAL_PREFIX = "/carouselFigure";
+	
+	@Override
+	public String getPortalPrefix() {
+		return PORTAL_PREFIX;
+	}
+
+}

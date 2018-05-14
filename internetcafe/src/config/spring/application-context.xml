@@ -1,0 +1,35 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+			 http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+			 http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.1.xsd"
+       default-lazy-init="true">
+
+    <description>Spring公共配置文件</description>
+
+    <!-- 属性文件读入 -->
+    <context:property-placeholder location="classpath:config/spring/config.properties"/>
+
+    <task:executor id="executor" pool-size="5" />
+    <task:scheduler id="scheduler" pool-size="10" />
+    <task:annotation-driven executor="executor" scheduler="scheduler" />
+
+    <!--支持注解 @Required, @Autowired, @PostConstruc-->
+    <context:annotation-config/>
+    <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
+    <context:component-scan base-package="com.ideal.oms"/>
+    <!-- 使用annotation 自动注册bean, 并保证@Required、@Autowired的属性被注入 -->
+    <context:component-scan base-package="com.ideal.oms.security"/>
+    <context:component-scan base-package="com.ideal.oms.service"/>
+    <context:component-scan base-package="com.ideal.oms.component"/>
+
+    <!-- Spring Data Jpa配置 -->
+    <jpa:repositories base-package="com.ideal.oms.repository"
+                      factory-class="com.ideal.oms.framework.orm.FrameworkJpaRepositoryFactoryBean"/>
+
+
+</beans>

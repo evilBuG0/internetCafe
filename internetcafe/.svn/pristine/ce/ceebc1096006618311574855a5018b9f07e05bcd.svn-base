@@ -1,0 +1,277 @@
+package com.ideal.oms.web.controller.source;
+
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONArray;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.util.WebUtils;
+
+import com.google.common.base.Charsets;
+import com.ideal.oms.entity.BusinessCode;
+import com.ideal.oms.entity.MaintainContract;
+import com.ideal.oms.entity.WifiEquipment;
+import com.ideal.oms.framework.orm.SearchFilter;
+import com.ideal.oms.framework.web.json.JsonObject;
+import com.ideal.oms.repository.MaintainContractRepository;
+import com.ideal.oms.security.service.SecurityServiceImp;
+import com.ideal.oms.service.BusinessService;
+import com.ideal.oms.service.WifiEquipmentService;
+
+/**
+ * Created by fekindai
+ */
+@Controller
+@RequestMapping(AbstractSourceController.PORTAL_PREFIX)
+public class WifiEquipmentManageController extends AbstractSourceController {
+
+	@Resource
+	private WifiEquipmentService wifiEquipmentService;
+	@Resource
+	private	BusinessService businessService;
+	@Resource
+	private SecurityServiceImp securityServiceImp;
+	@Resource
+	private MaintainContractRepository maintainContractRepository;
+	@RequestMapping("wifiEquipment")
+	public void index(HttpServletRequest request, Model model) throws Exception {
+		Map<String, Object> searchParams = WebUtils.getParametersStartingWith(
+				request, "Q_");
+		Sort sort = new Sort(Sort.Direction.DESC, "id");
+		String[] icons = {"w.png","kh.png"};
+		Page<WifiEquipment> page = wifiEquipmentService.searchWifiEquipment(
+				searchParams, buildPageRequest(request, 15, sort));
+		List<WifiEquipment> wifiEquipmentList = wifiEquipmentService
+				.findWifiEquipmentListByParent();
+		model.addAttribute("wifiEquipmentList", wifiEquipmentList);
+		model.addAttribute("wifiEquipmentpage", page);
+		List Wifilist = new ArrayList();
+		BusinessCode businessCode =businessService.findBusinessOne((long) 1);
+		Map map = null;
+		Map map2 = null;
+		Long id = businessCode.getId();
+		Long pId = businessCode.getDelFlag();
+		String name = businessCode.getBusinessName();
+		String open = "true";
+		String icon = "/safecity/zTree/css/zTreeStyle/img/diy/"+icons[0];
+		String url = "";
+		map = new HashMap();
+		map.put("id", id);
+		map.put("pId", pId);
+		map.put("name", name);
+		map.put("open", open);
+		map.put("icon", icon);
+		map.put("url", url);
+		Wifilist.add(map);
+		List<MaintainContract> maintainContract = maintainContractRepository.findMaintainContractByBusiness(id);
+		if(maintainContract != null){		
+			for(int j=0;j<maintainContract.size();j++){
+			Long customerId = maintainContract.get(j).getCustomer().getId();
+			Long customerpId = id;
+			String customername = maintainContract.get(j).getCustomer().getCustomerName();
+			String customeropen = "";
+			String customericon = "/safecity/zTree/css/zTreeStyle/img/diy/"+icons[1];
+			String customerurl = "";
+			map2 = new HashMap();
+			map2.put("id", customerId);
+			map2.put("pId", customerpId);
+			map2.put("name", customername);
+			map2.put("open", customeropen);
+			map2.put("icon", customericon);
+			map2.put("url", customerurl);
+			Wifilist.add(map2);
+			}
+		}
+		JSONArray WifilistStr = JSONArray.fromObject(Wifilist);
+		model.addAttribute("WifilistStr", WifilistStr);
+	}
+
+	@RequestMapping("wifiEquipment_manage_pop")
+	public void wifiequip(HttpServletRequest request, Model model) throws Exception {
+		Map<String, Object> searchParams = WebUtils.getParametersStartingWith(
+				request, "Q_");
+		Sort sort = new Sort(Sort.Direction.DESC, "id");
+		Page<WifiEquipment> page = wifiEquipmentService.searchWifiEquipment(
+				searchParams, buildPageRequest(request, 15, sort));
+		List<WifiEquipment> wifiEquipmentList = wifiEquipmentService
+				.findWifiEquipmentListByParent();
+		model.addAttribute("wifiEquipmentList", wifiEquipmentList);
+		model.addAttribute("wifiEquipmentpage", page);
+	}
+
+	@RequestMapping("edit_wifiEquipment_pop")
+	public void edit(Model model,
+			@RequestParam(value = "id", required = false) Long id) {
+		List<WifiEquipment> WifiEquipmentList = wifiEquipmentService
+				.findWifiEquipmentListByParent();
+		model.addAttribute("WifiEquipmentList", WifiEquipmentList);
+		WifiEquipment wifiEquipmentInfo = null;
+		if (id != null) {
+			wifiEquipmentInfo = wifiEquipmentService.findWifiEquipmentOne(id);
+		}
+		model.addAttribute("wifiEquipmentInfo", wifiEquipmentInfo);
+	}
+
+	@RequestMapping("wifiEquipment_detail_pop")
+	public void wifiEquipmentdetailpop(Model model,
+			@RequestParam(value = "id", required = false) Long id) {
+		List<WifiEquipment> WifiEquipmentList = wifiEquipmentService
+				.findWifiEquipmentListByParent();
+		model.addAttribute("WifiEquipmentList", WifiEquipmentList);
+		WifiEquipment wifiEquipmentInfo = null;
+		if (id != null) {
+			wifiEquipmentInfo = wifiEquipmentService.findWifiEquipmentOne(id);
+		}
+		model.addAttribute("wifiEquipmentInfo", wifiEquipmentInfo);
+		System.out.println(111111111);
+	}
+
+	@RequestMapping("save_wifiEquipment")
+	@ResponseBody
+	public JsonObject save(Model model, @RequestParam(value = "id") Long id,
+			@RequestParam(required = false) String site,
+			@RequestParam(required = false) String name,
+			@RequestParam(required = false) String address,
+			@RequestParam(required = false) String type,
+			@RequestParam(required = false) String manufacturer,
+			@RequestParam(required = false) String equipType,
+			@RequestParam(required = false) String superEquip,
+			@RequestParam(required = false) String coverage,
+			@RequestParam(required = false) String projectNo,
+			@RequestParam(required = false) String bz,
+			@RequestParam(required = false) String sequence,
+			@RequestParam(required = false) String ip,
+			@RequestParam(required = false) String enable,
+			@RequestParam(required = false) String zcbh,
+			@RequestParam(required = false) String mesh,
+			@RequestParam(required = false) String macAddress) {
+		WifiEquipment wifiEquipment = new WifiEquipment();
+		if (id != null) {
+			wifiEquipment = wifiEquipmentService.findWifiEquipmentOne(id);
+		}
+		wifiEquipment.setSite(site);
+		wifiEquipment.setName(name);
+		wifiEquipment.setAddress(address);
+		wifiEquipment.setType(type);
+		wifiEquipment.setManufacturer(manufacturer);
+		wifiEquipment.setEquipType(equipType);
+		WifiEquipment parWifi = wifiEquipmentService.findWiflIdBySuperEquip(superEquip);
+		if(parWifi == null){
+			wifiEquipment.setParentEquipment(null);
+		} else {
+			wifiEquipment.setParentEquipment(new WifiEquipment(parWifi.getId()));
+		}
+		wifiEquipment.setCoverage(coverage);
+		wifiEquipment.setProjectNo(projectNo);
+		wifiEquipment.setBz(bz);
+		wifiEquipment.setSequence(sequence);
+		wifiEquipment.setIp(ip);
+		wifiEquipment.setEnable(enable);
+		wifiEquipment.setZcbh(zcbh);
+		wifiEquipment.setMesh(mesh);
+		wifiEquipment.setMacAddress(macAddress);
+		wifiEquipment.setDelFlag(0);
+		wifiEquipmentService.saveWifiEquipment(wifiEquipment);
+		return JsonObject.success();
+	}
+
+	@RequestMapping("delete_wifiEquipment")
+	@ResponseBody
+	public JsonObject delete(@RequestParam(value = "id") Long[] ids) {
+		if (ids != null) {
+			wifiEquipmentService.deleteWifiEquipment(ids);
+		}
+		return JsonObject.success();
+	}
+
+	@RequestMapping(value = "wifiEquipment_manage_pop", params = "exportData=1")
+	public void export_WifiEquipment(Model model, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+		Map<String, Object> searchParams = WebUtils.getParametersStartingWith(
+				request, "Q_");
+		Map<String, SearchFilter> filters = SearchFilter.parse(searchParams);
+		Collection<SearchFilter> searchFilters = new ArrayList<SearchFilter>(
+				filters.values());
+		// Response
+		String fileName = "wifi设备.csv";
+		String userAgent = request.getHeader("User-Agent");
+		if (userAgent.contains("MSIE") || userAgent.contains("Trident")) {// IE浏览器
+			fileName = URLEncoder.encode(fileName, "UTF8");
+		} else if (userAgent.contains("Mozilla")) {// google,火狐浏览器
+			fileName = new String(fileName.getBytes(), "ISO8859-1");
+		} else {
+			fileName = URLEncoder.encode(fileName, "UTF8");// 其他浏览器
+		}
+		response.setCharacterEncoding("utf-8");
+		response.setContentType("application/vnd.ms-excel");
+		response.setHeader("Content-disposition", "attachment;filename="
+				+ fileName);
+		// response.getOutputStream().write(bytes);
+
+		ServletOutputStream stream = response.getOutputStream();
+		stream.write((new byte[] { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF }));
+		Map<String, Object> pars = new HashMap<String, Object>();
+		String site = request
+				.getParameter("Q_LIKE_site");
+		if (StringUtils.isNotBlank(site)) {
+			pars.put("site", "%"+site+"%");
+		}
+		String name = request
+				.getParameter("Q_LIKE_name");
+		if (StringUtils.isNotBlank(name)) {
+			pars.put("name", "%"+name+"%");
+		}
+		stream.write(("客户名称,所在场点,设备名称,设备地址,设备种类,设备厂商,设备类型,上级设备,覆盖范围,工程期号,备注,序列号,IP,是否启用tr069,资产编号,MESH功能,MAC地址")
+				.getBytes(Charsets.UTF_8));
+		stream.write("\r\n".getBytes(Charsets.UTF_8));
+		for (int i = 0; true; i++) {
+			Pageable pageable = new PageRequest(i, 10000);
+			List<Map<String, Object>> list = null;
+			list = wifiEquipmentService.exportWifiEquipment(pars, pageable);
+			if (list == null || list.size() == 0) {
+				break;
+			}
+			for (Map<String, Object> item : list) {
+				Iterator it = item.entrySet().iterator();
+				StringBuffer buffer = new StringBuffer();
+				boolean first = true;
+				while (it.hasNext()) {
+					if (first) {
+						first = false;
+					} else {
+						buffer.append(",");
+					}
+					Map.Entry entity = (Map.Entry) it.next();
+					// String key = (String)entity.getKey();
+					Object value = entity.getValue();
+					buffer.append(value);
+				}
+				stream.write(buffer.toString().getBytes(Charsets.UTF_8));
+				stream.write("\r\n".getBytes(Charsets.UTF_8));
+			}
+		}
+		// close
+		response.getOutputStream().flush();
+		response.getOutputStream().close();
+	}
+}

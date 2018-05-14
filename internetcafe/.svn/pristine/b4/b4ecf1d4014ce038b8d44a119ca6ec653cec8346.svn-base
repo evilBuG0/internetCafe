@@ -1,0 +1,58 @@
+package com.ideal.oms.service;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import com.ideal.oms.entity.CarouselFigure;
+import com.ideal.oms.framework.orm.DynamicSpecifications;
+import com.ideal.oms.framework.orm.SearchFilter;
+import com.ideal.oms.repository.CarouselFigureRepository;
+
+@Service
+public class CarouselFigureService {
+
+	@Resource
+	private CarouselFigureRepository carouselFigureRepository;
+	
+	public Page<CarouselFigure> searchCarouselFigureList(Map<String, Object> searchParams,
+			Pageable pageable) {
+		Map<String, SearchFilter> filters = SearchFilter.parse(searchParams);
+		filters.put("delFlag", new SearchFilter("delFlag",
+				SearchFilter.Operator.EQ, 0));
+		Specification<CarouselFigure> spec = DynamicSpecifications
+				.bySearchFilter(filters.values());
+		Page<CarouselFigure> carouselFigureList = carouselFigureRepository.findAll(spec, pageable);
+		return carouselFigureList;
+	}
+
+	public CarouselFigure findCarouselFigureOne(Long id) {
+		return carouselFigureRepository.findOne(id);
+	}
+
+	public void saveCarouselFigure(CarouselFigure carouselFigure) {
+		carouselFigureRepository.save(carouselFigure);
+	}
+
+	public void deleteCarouselFigure(Long[] ids) {
+		Iterable<CarouselFigure> carouselFigures = carouselFigureRepository.findAll(Arrays
+				.asList(ids));
+		for (CarouselFigure carouselFigure : carouselFigures) {
+			carouselFigure.setDelFlag(Long.valueOf(1));
+		}
+		carouselFigureRepository.save(carouselFigures);
+
+	}
+
+	public List<CarouselFigure> findAll() {
+		return carouselFigureRepository.findAll();
+	}
+	
+}

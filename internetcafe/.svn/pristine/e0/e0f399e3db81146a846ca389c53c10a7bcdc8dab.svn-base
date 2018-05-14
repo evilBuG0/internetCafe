@@ -1,0 +1,17 @@
+package com.ideal.oms.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.Query;
+
+import com.ideal.oms.entity.BusinessCode;
+import com.ideal.oms.framework.orm.JpaRepository;
+
+public interface BusinessRepository extends JpaRepository<BusinessCode, Long> {
+	
+	@Query("SELECT o FROM BusinessCode o WHERE o.delFlag = 0 ")
+	public List<BusinessCode> findAll();
+	
+	@Query("SELECT o.id FROM BusinessCode o WHERE o.businessCode = ?1 and o.delFlag = 0 ")
+	public BusinessCode findByBusinessName(String businessCode);
+}

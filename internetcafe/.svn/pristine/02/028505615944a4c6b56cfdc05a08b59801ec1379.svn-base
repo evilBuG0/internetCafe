@@ -1,0 +1,78 @@
+package com.ideal.oms.entity;
+
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ideal.oms.framework.entity.AutoModel;
+
+/**
+ * Created by Administrator on 16-2-23.
+ */
+@Entity
+@Table(name = "workorder_hang")
+public class WorkorderHang extends AutoModel {
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "workorder_id")
+	@JsonIgnore
+	private Workorder workorder;
+	
+	private String hangPerson;
+	private String untiePerson;
+	private Date hangDate;
+	private Date untieDate;
+
+	public WorkorderHang() {
+	}
+
+	public WorkorderHang(Long id) {
+		super(id);
+	}
+
+	public Workorder getWorkorder() {
+		return workorder;
+	}
+
+	public void setWorkorder(Workorder workorder) {
+		this.workorder = workorder;
+	}
+
+	public String getHangPerson() {
+		return hangPerson;
+	}
+
+	public void setHangPerson(String hangPerson) {
+		this.hangPerson = hangPerson;
+	}
+
+	public String getUntiePerson() {
+		return untiePerson;
+	}
+
+	public void setUntiePerson(String untiePerson) {
+		this.untiePerson = untiePerson;
+	}
+
+	public Date getHangDate() {
+		return hangDate;
+	}
+
+	public void setHangDate(Date hangDate) {
+		this.hangDate = hangDate;
+	}
+
+	public Date getUntieDate() {
+		return untieDate;
+	}
+
+	public void setUntieDate(Date untieDate) {
+		this.untieDate = untieDate;
+	}
+	
+}

@@ -1,0 +1,152 @@
+package com.ideal.oms.web.controller.system;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.util.WebUtils;
+
+import com.ideal.oms.entity.BusinessCode;
+import com.ideal.oms.entity.Malfunction;
+import com.ideal.oms.entity.security.User;
+import com.ideal.oms.entity.security.UserRole;
+import com.ideal.oms.framework.web.json.JsonObject;
+import com.ideal.oms.framework.web.message.WebMessageLevel;
+import com.ideal.oms.security.service.SecurityServiceImp;
+import com.ideal.oms.service.BusinessService;
+import com.ideal.oms.service.CompanyService;
+import com.ideal.oms.service.CustomerService;
+import com.ideal.oms.service.MalfunctionService;
+
+@Controller
+@RequestMapping(AbstractSystemController.PORTAL_PREFIX)
+public class MalfunctionManageController extends AbstractSystemController {
+	Logger logger = LoggerFactory.getLogger(MalfunctionManageController.class);
+
+	@Resource
+	private SecurityServiceImp securityServiceImp;
+
+	@Resource
+	private CompanyService companyService;
+	
+	@Resource
+	private CustomerService customerService;
+	@Resource
+	private MalfunctionService malfunctionService;
+	@Resource
+	private BusinessService businessService;
+
+	@RequestMapping("malfunction_manage")
+	public void index(HttpServletRequest request, Model model) {
+		List<BusinessCode> businessList = businessService.findAll();
+		model.addAttribute("businessList", businessList);
+		Map<String, Object> searchParams = WebUtils.getParametersStartingWith(
+				request, "Q_");
+		Pageable pageable = buildPageRequest(request, 15, new Sort(
+				Sort.Direction.DESC, "id"));
+		Page<Malfunction> page = malfunctionService.searchMalfunction(searchParams, pageable);
+		model.addAttribute("page", page);
+	}
+
+	@RequestMapping("edit_malfunction_pop")
+	public void edit(Model model,
+			@RequestParam(value = "id", required = false) Long id) {
+		System.out.println(id+"------------");
+		List<BusinessCode> businessList = businessService.findAll();
+		model.addAttribute("businessList", businessList);
+		Malfunction malfunctionInfo = null;
+		if (id != null) {
+			malfunctionInfo = malfunctionService.findMalfunctionById(id);
+		}
+		model.addAttribute("malfunctionInfo", malfunctionInfo);
+	}
+
+	@RequestMapping("save_malfunction")
+	@ResponseBody
+	public JsonObject save(Model model, @RequestParam(value = "id") Long id,
+			@RequestParam(required = false) String malfunctionName,
+			@RequestParam(required = false) Long businessId,
+			@RequestParam(required = false) String username,
+			@RequestParam(required = false) String password,
+			@RequestParam(required = false) Long roleId,
+			@RequestParam(required = false) Long userBelongs,
+			@RequestParam(required = false) String realName,
+			@RequestParam(required = false) String phone,
+			@RequestParam(required = false) Long is_zq_leader,
+			@RequestParam(required = false) Long is_login) {
+		Malfunction malfunction=new Malfunction();
+		User user = new User();
+		UserRole userRole = new UserRole();
+		// 编辑
+		if (id != null) {
+			malfunction=malfunctionService.findMalfunctionById(id);
+			malfunction.setMalfunctionName(malfunctionName);
+			malfunction.setBusinessCode(new BusinessCode(businessId));
+			malfunctionService.saveMalfunction(malfunction);
+		}
+		// 新增
+		else {
+			Malfunction malfunctionInfo = malfunctionService.findMalfunctionByName(malfunctionName);
+			if (null != malfunctionInfo) {
+				return JsonObject.alert("故障名已存在！", WebMessageLevel.WARN);
+			}
+			malfunction.setMalfunctionName(malfunctionName);
+			malfunction.setBusinessCode(new BusinessCode(businessId));
+			malfunction.setCreateUser(securityServiceImp.getLoginUser());
+			malfunction.setCreateDate(new Date());
+			malfunction.setDelFlag(0L);
+			malfunctionService.saveMalfunction(malfunction);
+			
+		}
+		return JsonObject.success();
+	}
+
+	@RequestMapping("delete_malfunction")
+	@ResponseBody
+	public JsonObject delete(@RequestParam(value = "id") Long[] ids) {
+		if (ids != null) {
+			malfunctionService.deleteMalfunction(ids);
+		}
+		return JsonObject.success();
+	}
+	
+	/*@RequestMapping("get_customer")
+	@ResponseBody
+	public List<Customer> getCustomer(Model model,
+			HttpServletRequest request) {
+		List<Long> c_ids=new ArrayList<Long>();
+		List<Customer> customer = customerService.findAll();
+		for(Customer m:customer){
+			c_ids.add(m.getId());
+		}
+		List<Customer> customerInfo = customerService.findCustomerByids(c_ids);
+		System.out.println(customerInfo.size());
+		return customerInfo;
+	}*/
+	
+	/*@RequestMapping("get_company")
+	@ResponseBody
+	public List<MaintainCompany> getCompany(Model model,
+			HttpServletRequest request) {
+		List<Long> c_ids=new ArrayList<Long>();
+			List<MaintainCompany> company = companyService.findAll();
+			for(MaintainCompany m:company){
+				c_ids.add(m.getId());
+			}
+		List<MaintainCompany> companyInfo = companyService.findCompanyByids(c_ids);
+		return companyInfo;
+	}*/
+}

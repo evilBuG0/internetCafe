@@ -1,0 +1,13 @@
+package com.ideal.oms.web.controller.contract;
+
+import com.ideal.oms.web.controller.UIController;
+
+public class AbstractContractController extends UIController {
+	public final static String PORTAL_PREFIX = "/contract";
+	
+	@Override
+	public String getPortalPrefix() {
+		return PORTAL_PREFIX;
+	}
+
+}

@@ -1,0 +1,138 @@
+@charset "utf-8";
+/* CSS Document */
+body,a,input,select,h1,h2,h3,h4,h5,h6{font-family:Microsoft Yahei}
+.h_chinese{font-family:Microsoft Yahei}
+.table_padding{margin-left:12px; margin-right:12px; }
+.table_padding label{font-size:12px}
+.row_height_s{ margin:0px; padding:15px 8px ; border:1px dotted #e1e9f4; margin-bottom:15px; position:relative; height:65px; background:#f8faff; font-family:Microsoft Yahei}
+.row_height_s1{height:110px}
+.row_height_s1 .form-group_li{margin-bottom:10px}
+.row_height_x{height:50px; margin:0px; line-height:24px}
+.row_height_h{height:80px; margin:0px}
+.row_height_y{height:44px; margin:0px; background:#eff3f8; padding:10px}
+.row_height_x label{font-size:12px}
+.pull-left_width{width:30%}
+.icon_left{margin-right:5px; float:left;}
+.icon_left .lbl{ font-size:12px}
+.col-left{float:left; margin-left:15px;}
+.form-li{float:left; margin-bottom:0px}
+.btn_ss{padding:0 8px; font-size:12px}
+.col-rig{float:left}
+.col-rig_but{float:left}
+.col-left{float:left}
+.bg{position:absolute;z-index:999;filter:alpha(opacity=50);background:#666;opacity: 0.5;-moz-opacity: 0.5;left:0;top:0;height:99%;width:100%;}
+.beian_winBG {
+MARGIN-TOP: -100px; LEFT: 33%; MARGIN-LEFT: -190px; WIDTH: 800px; POSITION:absolute; TOP: 30%; border:#a2a2a2 1px solid;z-index: 1002; background:#fff; 
+-moz-border-radius: 3px;
+-khtml-border-radius: 3px;
+-webkit-border-bottomradius: 3px;
+border-radius: 3px;
+-webkit-box-shadow: #878787 0px 0px 5px;
+-moz-box-shadow: #878787 0px 0px 5px;
+box-shadow: #878787 0px 0px 5px;behavior: url(/PIE.htc);
+font:18px/30px Microsoft yahei; 
+border:2px solid #ccc
+}
+.close a{background:#368ddc; color:#fff; font-size:14px;  margin:25px 0 0 110px; display:block; width:80px; text-align:center}
+.close a:hover{background:#286fc7}
+.ui-pg-div a{text-decoration:#fff}
+.col_left_li{float:left; width:120px; text-align:right; margin-right:5px; line-height:30px}
+.col_right_li{float:left;}
+.col_right_li .inp{width:220px; height:30px; text-align:left}
+.font_y{font-family:Microsoft Yahei; font-size:14px}
+.ui_t_foot {
+    background: none repeat scroll 0 0 #eff3f8;
+    margin-top: 15px;
+    padding: 15px;
+    text-align: center;
+}
+
+.ui_t_foot button{margin-right:50px}
+.input-group .form-control{width:10%; margin-right:1%;}
+.input-group .search_inp1{width:28%; margin-right:1%; }
+.input-group { font-size:14px}
+
+.form-group_li{float:left; margin-right:11px}
+.row_height_h .form-group_li label{width:80px; text-align:right}
+.form-group_li_left{float:left; line-height:28px; margin-right:3px}
+.col_d{width:180px}
+.col_d1{width:245px}
+.col_d2{width:75px}
+.col_d3{width:350px}
+.form-group_li_right{float:left}
+.form-group_li input{height:34px;}
+.form-group_li select{height:34px; width:160px;font-size:14px}
+.row_height .btn-xs{line-height:1.6}
+
+.form_g_li{float:left; width:350px; color:#333; font-size:12px; margin-top:8px}
+.form_g_li label{font-size:12px}
+
+.form_g_li2 .col_right_li .inp{height:28px}
+.form_g_li2{width:248px; margin-top:0px}
+.form_g_li2 .col_right_li .inp{width:120px}
+.form_g_li2 .col_right_li .inp2{width:80px}
+.col_left_li span{color:#F00}
+.widget-header_height{margin-bottom:10px}
+.ui_t_foot button{padding:2px 20px}
+.form_g_li1{width:700px}
+.form_g_li3{width:600px}
+.form_g_li4{width:240px}
+.form_g_li1 .inp_l{width:570px}
+.td_o button{margin-bottom:5px; margin-right:5px}
+.t_box{width:98%; clear:both; font-size:12px; margin:5px auto;}
+.t_box .group{border:#CCC}
+.t_box .t_box_li{color:#333; }
+.form_g_lis{border:1px solid #ccc; width:98%; padding:10px; margin:0 auto}
+.t_box h3{font-size:12px; color:#333}
+.btn_pos{position:absolute; right:8px; font-size:14px; line-height:1.2;}
+.row_height_s1 .btn_pos{bottom:20px}
+
+.t_box_li{}
+.t_box_li label{margin-right:5px;font-size:12px}
+.t_box_li .radio{margin-top:0px; padding-left:0px}
+.form_g_li .inp_ll{width:510px}
+.lieb_li{width:49%; float:left; margin-right:1%}
+.lieb_li .widget-header{height:32px}
+.table-responsive1{height:450px; overflow:auto; background:#edefef}
+.lieb_li .inp_sm{height:24px; font-size:12px}
+.pull-right1{float:right; width:200px}
+.pull-right1 input{height:24px; width:150px; float:left; font-size:12px; padding:0px 5px}
+.pull-right1 button{line-height:1.6; padding:0 8px}
+.form-group_li .input-group{width:320px}
+.form-group_li .input-group input{width:116px}
+.form-group_li .input-group .form-control{margin-right:-1px}
+
+.input-group-addon{width:40px; float: right; position: inherit; margin-right: -40px;}
+
+.tree_plus {
+    background: url("../images/plus.png") no-repeat 50% 50%;
+    cursor: pointer;
+    text-align: center
+    text-indent: 17px;
+}
+
+.tree_minus {
+    background: url("../images/minus.png") no-repeat 50% 50%;
+    cursor: pointer;
+    text-align: center;
+    text-indent: 17px;
+}
+
+/* ProgressBar url(../images/progressBar_m.gif) no-repeat 10px 10px;*/
+#progressBar { border:solid 1px #86a5ad; background:#FFF }
+
+#progressBar { display:none; width:148px; height:28px; position:fixed; top:50%; left:50%; margin-left:-74px; margin-top:-14px; padding:0px 0px 0px 5px; text-align:left; line-height:27px; font-weight:bold; position:absolute; z-index:2001;}
+#background { display:none; width:100%; height:100%; opacity:0.4; filter:alpha(opacity=40); background:#FFF; position:absolute; top:0; left:0; z-index:2000;}
+.plans_c{width:96%; margin:0 auto; }
+.plans_c label{margin-right:20px;font-size:12px; line-height:12px}
+.plans_c label input{margin-right:3px;vertical-align:bottom;}
+
+.management{margin:70px 0 0 50px}
+.management_bac{background:url(../images/management_bac.jpg) no-repeat top; width:368px; height:117px; float:left; margin-top:20px}
+.management_text{float:left; margin-left:20px }
+.management_text_x{width:470px;  background:#428fb9; color:#fff; font:14px/24px Microsoft Yahei; padding:30px}
+.management_addres{font:14px/30px Microsoft Yahei; padding:5px 0 0 30px}
+.management_addres dd{font:12px/24px Microsoft Yahei}
+
+
+

@@ -1,0 +1,28 @@
+package com.ideal.oms.service;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ideal.oms.entity.MaintainContract;
+import com.ideal.oms.repository.ContractRepository;
+
+/**
+ * Created by Administrator on 16-2-23.
+ */
+@Service
+public class MaintainContractService {
+	@Resource
+	private ContractRepository ContractRepository;
+
+	public List<MaintainContract> findMaintainContractByBusiness(Long business_id){
+		return ContractRepository.findMaintainContractByBusiness(business_id);
+	}
+	
+	//findCompnayByBusinessAndCustomer
+	public MaintainContract findCompnayByBusinessAndCustomer(Long business_id,Long customer_id){
+		return ContractRepository.findCompnayByBusinessAndCustomer(business_id,customer_id);
+	}
+}

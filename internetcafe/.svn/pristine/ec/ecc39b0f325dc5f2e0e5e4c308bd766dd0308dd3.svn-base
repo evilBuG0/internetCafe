@@ -1,0 +1,120 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@include file="/WEB-INF/jsp/common/taglib.jsp" %>
+<form action="${ctx}/save_customer_pop.do" method="post" onsubmit="return validate(this)">
+    <input type="hidden" name="id" value="${customerInfo.id}">
+    <div class="clearfix">
+        <div class="form_g_li">
+            <label class="col_left_li"> <span>*</span>客户全名</label>
+            <div class="col_right_li">
+                <c:choose>
+                    <c:when test="${customerInfo.id != null}">
+                        <input type="text" class="inp" name="customerName"
+                               value="${customerInfo.customerName}"/>
+                    </c:when>
+                    <c:otherwise>
+                        <input type="text" class="inp required" name="customerName"/>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+         <div class="form_g_li">
+            <label class="col_left_li"> <span>*</span>客户电话</label>
+            <div class="col_right_li">
+                <c:choose>
+                    <c:when test="${customerInfo.id != null}">
+                        <input type="text" class="inp mobile" name="customerPhone"
+                               value="${customerInfo.customerPhone}"/>
+                    </c:when>
+                    <c:otherwise>
+                        <input type="text" class="inp mobile" name="customerPhone"/>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li">客户经理</label>
+            <div class="col_right_li">
+                <select id="managerId" name="managerId" style="width: 160px;height: 24px" >
+                	<option value="">---请选择客户经理---</option>
+                	<c:forEach var="item" items="${list_user}">
+                		<option value="${item.id}" <c:if test="${item.id==customerInfo.user.id}">selected</c:if>>${item.username}</option>
+	              	</c:forEach>
+                </select>
+            </div>
+        </div>
+        <div class="form_g_li">
+        <label class="col_left_li">客户经理联系方式</label>
+            <div class="col_right_li">
+                <c:choose>
+                    <c:when test="${customerInfo.id != null}">
+                        <input type="text" class="inp mobile" name="managerPhone"
+                               value="${customerInfo.managerPhone}"/>
+                    </c:when>
+                    <c:otherwise>
+                        <input type="text" class="inp mobile" name="managerPhone"/>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li"> <span>*</span>客户方联系人</label>
+            <div class="col_right_li">
+                <c:choose>
+                    <c:when test="${customerInfo.id != null}">
+                        <input type="text" class="inp" name="contactPerson"
+                               value="${customerInfo.contactPerson}"/>
+                    </c:when>
+                    <c:otherwise>
+                        <input type="text" class="inp required" name="contactPerson"/>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li"> <span>*</span>客户方联系方式</label>
+            <div class="col_right_li">
+                <c:choose>
+                    <c:when test="${customerInfo.id != null}">
+                        <input type="text" class="inp mobile" name="contactPhone"
+                               value="${customerInfo.contactPhone}"/>
+                    </c:when>
+                    <c:otherwise>
+                        <input type="text" class="inp mobile" name="contactPhone"/>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li"> <span>*</span>办公地址</label>
+            <div class="col_right_li">
+                <c:choose>
+                    <c:when test="${customerInfo.id != null}">
+                        <input type="text" class="inp" name="address"
+                               value="${customerInfo.address}"/>
+                    </c:when>
+                    <c:otherwise>
+                        <input type="text" class="inp required" name="address"/>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li"> <span>*</span>邮箱</label>
+            <div class="col_right_li">
+                <c:choose>
+                    <c:when test="${customerInfo.id != null}">
+                        <input type="text" class="inp" name="email"
+                               value="${customerInfo.email}"/>
+                    </c:when>
+                    <c:otherwise>
+                        <input type="text" class="inp" name="email"/>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+    </div>
+    <div class="ui_t_foot">
+        <button class="btn" type="button" onclick="win.close();">取消</button>
+        <button class="btn btn-primary" type="submit">确定</button>
+    </div>
+</form>

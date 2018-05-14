@@ -1,0 +1,28 @@
+package com.ideal.oms.service;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ideal.oms.entity.Malfunction;
+import com.ideal.oms.repository.MalfunctionRepository;
+
+/**
+ * Created by Administrator on 16-2-23.
+ */
+@Service
+public class MalfunctionService {
+	@Resource
+	private MalfunctionRepository malfunctionRepository;
+
+	public List<Malfunction> findMalfunctionByBusiness(Long business_id){
+		return malfunctionRepository.findMalfunctionByBusiness(business_id);
+	}
+	
+	//findMalfunctionByIds
+	public List<Malfunction> findMalfunctionByIds(List<Long> ids){
+		return malfunctionRepository.findMalfunctionByIds(ids);
+	}
+}

@@ -1,0 +1,27 @@
+package com.ideal.oms.service;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ideal.oms.entity.WorkorderOperateRecord;
+import com.ideal.oms.repository.RecordRepository;
+
+/**
+ * Created by Administrator on 16-2-23.
+ */
+@Service
+public class RecordService {
+	@Resource
+	private RecordRepository recordRepository;
+
+	public List<WorkorderOperateRecord> findWorkorderOperateRecordById(Long id) {
+		return recordRepository.findRecordByWorkorderId(id);
+	}
+	
+	public WorkorderOperateRecord saveWorkorderOperateRecord(WorkorderOperateRecord w) {
+		return recordRepository.save(w);
+	}
+}

@@ -1,0 +1,25 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@include file="/WEB-INF/jsp/common/taglib.jsp" %>
+<head>
+</head>
+<form rel="${param.rel}" action="${ctx}/img_upload.do" method="post" enctype="multipart/form-data" onsubmit="return iframeValidate(this);">
+    <input type="hidden" name="id" value="${carouselFigureInfo.id}"/>
+    <div class="clearfix">
+    	<div class="form_g_li">
+            <label class="col_left_li"> <span>*</span> 图片序号</label>
+            <div class="col_right_li">
+            	<input type="text" class="inp required" name="number"/>
+            </div>
+        </div>
+        <div class="form_g_li" style="width: 450px;">
+            <label class="col_left_li"> <span>*</span> 文件 </label>
+            <div class="col_right_li">
+                <input type="file" class="inp required" name="file" value=""/>
+            </div>
+        </div>
+    </div>
+    <div class="ui_t_foot">
+        <button class="btn" type="button" onclick="win.close();">取消</button>
+        <button class="btn btn-primary" type="submit">确定</button>
+    </div>
+</form>

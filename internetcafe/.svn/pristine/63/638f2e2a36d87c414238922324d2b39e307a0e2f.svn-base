@@ -1,0 +1,32 @@
+package com.ideal.oms.entity;
+
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+import com.ideal.oms.framework.entity.AutoModel;
+
+/**
+ * Created by Administrator on 16-2-23.
+ */
+@Entity
+@Table(name = "workorder_state")
+public class WorkorderState extends AutoModel {
+	
+	private String state;
+
+	public WorkorderState() {
+	}
+
+	public WorkorderState(Long id) {
+		super(id);
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+	
+}

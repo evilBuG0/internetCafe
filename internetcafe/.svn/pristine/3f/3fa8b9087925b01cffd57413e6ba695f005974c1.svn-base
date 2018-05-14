@@ -1,0 +1,53 @@
+package com.ideal.oms.entity;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ideal.oms.framework.entity.AutoModel;
+
+/**
+ * Created by Administrator on 16-2-23.
+ */
+@Entity
+@Table(name = "malfunction")
+public class Malfunction extends AutoModel {
+	
+	private String malfunctionName;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "business_code_id")
+	@JsonIgnore
+	private BusinessCode businessCode;
+	private Long delFlag;
+	public Malfunction() {
+		// TODO Auto-generated constructor stub
+	}
+	public Malfunction(Long id) {
+		super(id);
+	}
+	public String getMalfunctionName() {
+		return malfunctionName;
+	}
+	public void setMalfunctionName(String malfunctionName) {
+		this.malfunctionName = malfunctionName;
+	}
+	public BusinessCode getBusinessCode() {
+		return businessCode;
+	}
+	public void setBusinessCode(BusinessCode businessCode) {
+		this.businessCode = businessCode;
+	}
+	public Long getDelFlag() {
+		return delFlag;
+	}
+	public void setDelFlag(Long delFlag) {
+		this.delFlag = delFlag;
+	}
+
+	
+	
+	
+}

@@ -1,0 +1,113 @@
+package com.ideal.oms.web.controller.customer;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.util.WebUtils;
+
+import com.ideal.oms.entity.Customer;
+import com.ideal.oms.entity.security.User;
+import com.ideal.oms.framework.web.json.JsonObject;
+import com.ideal.oms.security.service.SecurityServiceImp;
+import com.ideal.oms.service.CustomerService;
+
+/**
+ * Created by Administrator on 16-2-22.
+ */
+@Controller
+@RequestMapping(AbstractCustomerController.PORTAL_PREFIX)
+public class CustomerController extends AbstractCustomerController {
+	Logger logger = LoggerFactory.getLogger(CustomerController.class);
+
+	@Resource
+	private SecurityServiceImp securityServiceImp;
+
+	@Resource
+	private CustomerService customerService;
+	
+	@RequestMapping("customer_manage")
+	public void index(Model model, HttpServletRequest request) {
+		Map<String, Object> searchParams = WebUtils.getParametersStartingWith(
+				request, "Q_");
+		Sort sort = new Sort(Sort.Direction.DESC, "id");
+		Page<Customer> page = customerService.searchCustomerlist(searchParams,
+				buildPageRequest(request, 5, sort));
+		model.addAttribute("page", page);
+	}
+
+	@RequestMapping("edit_customer_pop")
+	public void edit(Model model,
+			@RequestParam(value = "id", required = false) Long id) {
+		Customer customerInfo = null;
+		List<User> list_user = null;
+		if (id != null) {
+			customerInfo = customerService.findCustomerOne(id);
+			list_user = securityServiceImp.findUser(5L);
+		}
+		model.addAttribute("customerInfo", customerInfo);
+		model.addAttribute("list_user", list_user);
+	}
+
+	@RequestMapping("save_customer_pop")
+	@ResponseBody
+	public JsonObject save(Model model, @RequestParam(value = "id") Long id,
+			@RequestParam(required = false) String customerName,
+			@RequestParam(required = false) String customerPhone,
+			@RequestParam(required = false) String address,
+			@RequestParam(required = false) Long managerId,
+			@RequestParam(required = false) String managerPhone,
+			@RequestParam(required = false) String contactPerson,
+			@RequestParam(required = false) String contactPhone,
+			@RequestParam(required = false) String email) {
+		Customer customer = new Customer();
+		if (id != null) {
+			customer = customerService.findCustomerOne(id);
+			customer.setCustomerName(customerName);
+			customer.setCustomerPhone(customerPhone);
+			customer.setAddress(address);
+			customer.setUser(new User(managerId));
+			customer.setManagerPhone(managerPhone);
+			customer.setContactPerson(contactPerson);
+			customer.setContactPhone(contactPhone);
+			customer.setEmail(email);
+			customer.setModifyDate(new Date());
+			customerService.savCustomer(customer);
+		} else {
+			customer.setCustomerName(customerName);
+			customer.setCustomerPhone(customerPhone);
+			customer.setAddress(address);
+			customer.setUser(new User(managerId));
+			customer.setManagerPhone(managerPhone);
+			customer.setContactPerson(contactPerson);
+			customer.setContactPhone(contactPhone);
+			customer.setEmail(email);
+			customer.setCreateDate(new Date());
+			customer.setDelFlag(0L);
+			customerService.savCustomer(customer);
+		}
+		return JsonObject.success();
+	}
+
+	@RequestMapping("delete_customer_pop.do")
+	@ResponseBody
+	public JsonObject delete(@RequestParam(value = "id") Long[] ids) {
+		if (ids != null) {
+			customerService.deleteCustomer(ids);
+		}
+		return JsonObject.success();
+	}
+
+}

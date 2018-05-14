@@ -1,0 +1,14 @@
+package com.ideal.oms.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.Query;
+
+import com.ideal.oms.entity.CarouselFigure;
+import com.ideal.oms.framework.orm.JpaRepository;
+
+public interface CarouselFigureRepository extends JpaRepository<CarouselFigure, Long> {
+	@Query("SELECT o FROM CarouselFigure o WHERE o.delFlag = 0 ")
+	public List<CarouselFigure> findAll();
+	
+}

@@ -1,0 +1,4 @@
+INDEX VERSION 1.122+C:\Users\john\Desktop\zwp_project\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
+2909346536.index
+3441761049.index
+3512773114.index

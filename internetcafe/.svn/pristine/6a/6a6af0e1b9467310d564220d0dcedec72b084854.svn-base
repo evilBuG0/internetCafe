@@ -1,0 +1,12 @@
+package com.ideal.oms.web.controller.customer;
+
+import com.ideal.oms.web.controller.UIController;
+
+public class AbstractCustomerController extends UIController {
+	public final static String PORTAL_PREFIX = "/customer";
+
+	@Override
+	public String getPortalPrefix() {
+		return PORTAL_PREFIX;
+	}
+}

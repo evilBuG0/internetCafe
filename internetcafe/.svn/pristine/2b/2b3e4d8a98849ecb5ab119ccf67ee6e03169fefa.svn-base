@@ -1,0 +1,129 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@include file="/WEB-INF/jsp/common/taglib.jsp" %>
+<head>
+<link rel="stylesheet" href="${ctxRoot}/static/framework/selectator/fm.selectator.jquery.css" type="text/css">
+<script src="${ctxRoot}/static/framework/selectator/fm.selectator.jquery.js"></script>
+<link rel="stylesheet" href="${ctxRoot}/static/css/jquery-ui.min.css">
+<script src="${ctxRoot}/static/js/jquery-ui-1.10.3.min.js"></script>
+<script src="${ctxRoot}/static/js/base64.js"></script>
+<script src="${ctxRoot}/static/js/scriptLib.js"></script>
+<script type="text/javascript">
+	$(function () {
+	    var $userBelongs = $("#userBelongs");
+	        $userBelongs.selectator({
+	            useDimmer: true
+	        });
+	});
+
+	function getCustomerOrCompanyByRoleId(){
+		var roleId = $("#roleId option:selected").val();
+		$("#userBelongs").empty();
+	    if ((roleId != "" && roleId == 2) || roleId == 5) {
+	        $.post("${ctx}/get_customer.do", function(data){
+	            for(var i = 0 ; i < data.length ; i++){
+	                $("#userBelongs").append("<option value='"+data[i]["id"]+"'>"+data[i]["customerName"]+"</option>");
+	            }
+	        },"json");
+	    }
+	    if (roleId != "" && roleId == 3) {
+	        $.post("${ctx}/get_company.do", function(data){
+	            for(var i = 0 ; i < data.length ; i++){
+	                $("#userBelongs").append("<option value='"+data[i]["id"]+"'>"+data[i]["companyName"]+"</option>");
+	            }
+	        },"json");
+	    }
+	}
+
+</script>
+</head>
+<form action="${ctx}/save_user.do" method="post" onsubmit="return validate(this)">
+    <input type="hidden" name="id" value="${userInfo.id}">
+    <div class="clearfix">
+        <div class="form_g_li">
+            <label class="col_left_li"> <span>*</span>用户名 </label>
+            <div class="col_right_li">
+                <c:choose>
+                    <c:when test="${userInfo.id!=null}">
+                        <input type="text" class="inp" name="username" readonly value="${userInfo.username}"/>
+                    </c:when>
+                    <c:otherwise>
+                        <input type="text" class="inp required" name="username"/>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li"> <span>*</span>登录密码 </label>
+            <div class="col_right_li">
+                <c:choose>
+                    <c:when test="${userInfo.id!=null}">
+                        <input type="password" class="inp" name="password" readonly value="${userInfo.password}"/>
+                    </c:when>
+                    <c:otherwise>
+                        <input type="text" class="inp required" minlength="6" name="password"/>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li"> <span>*</span>姓名 </label>
+            <div class="col_right_li">
+                <c:choose>
+                    <c:when test="${userInfo.id!=null}">
+                        <input type="text" class="inp" name="realName" value="${userInfo.realName}"/>
+                    </c:when>
+                    <c:otherwise>
+                        <input type="text" class="inp required"  name="realName"/>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li"> <span>*</span>联系电话</label>
+            <div class="col_right_li">
+                <c:choose>
+                     <c:when test="${userInfo.id!=null}">
+                        <input type="text" class="inp mobile" name="phone" value="${userInfo.phone}"/>
+                    </c:when>
+                    <c:otherwise>
+                        <input type="text" class="inp mobile"  name="phone"/>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li"> <span>*</span>角色</label>
+            <div class="col_right_li">
+                <select id="roleId" name="roleId" onchange="getCustomerOrCompanyByRoleId()">
+                    <c:forEach var="row" items="${roleList}">
+                        <option value="${row.id}" <c:if test="${row.id==userInfo.role.id}">selected</c:if>>${row.roleName}</option>
+                    </c:forEach>
+                </select>
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li"> 单位</label>
+            <div class="col_right_li">
+                <select id="userBelongs" name="userBelongs" style="height: 34px;width: 160px">
+                	<option value=''>-请选择单位-</option>
+                 <c:choose>
+                    <c:when test="${userInfo.role.id == 2 || userInfo.role.id == 5}">
+	                    <c:forEach var="row" items="${customerList}">
+	                		<option value="${row.id}" <c:if test="${row.id==userInfo.customer.id}">selected</c:if>>${row.customerName}</option>
+	                	</c:forEach>
+                    </c:when>
+                   <c:when test="${userInfo.role.id == 3}">
+	                    <c:forEach var="row" items="${companyList}">
+	                		<option value="${row.id}" <c:if test="${row.id==userInfo.company.id}">selected</c:if>>${row.companyName}</option>
+	                	</c:forEach>
+                    </c:when>
+                 </c:choose>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="ui_t_foot">
+        <button class="btn" type="button" onclick="win.close();">取消</button>
+        <button class="btn btn-primary" type="submit">确定</button>
+    </div>
+</form>

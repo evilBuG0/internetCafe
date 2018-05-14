@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decorators defaultdir="/WEB-INF/layouts/">
+    <excludes>
+        <pattern>/static/*</pattern>
+        <pattern>/jsp/*</pattern>
+        <pattern>/**/*_pop.do*</pattern>
+    </excludes>
+
+    <decorator name="default" page="default.jsp">
+        <pattern>/main/*</pattern>
+        <pattern>/system/*</pattern>
+        <pattern>/source/*</pattern>
+        <pattern>/workorder/*</pattern>
+        <pattern>/report/*</pattern>
+        <pattern>/user/*</pattern>
+        <pattern>/log/*</pattern>
+        <pattern>/customer/*</pattern>
+        <pattern>/contract/*</pattern>
+        <pattern>/businessCode/*</pattern>
+        <pattern>/carouselFigure/*</pattern>
+        <pattern>/network/*</pattern>
+    </decorator>
+</decorators>

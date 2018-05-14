@@ -1,0 +1,63 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@include file="/WEB-INF/jsp/common/taglib.jsp" %>
+<head>
+</head>
+<form method="post">
+    <input type="hidden" name="id" value="${contractInfo.id}">
+    <div class="clearfix">
+        <div class="form_g_li">
+            <label class="col_left_li">合同编号</label>
+            <label  class="col_left_li">
+              	${contractInfo.contractNo}
+            </label >
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li">合同金额</label>
+            <label  class="col_left_li">
+               ${contractInfo.amount}
+            </label >
+        </div>
+         <div class="form_g_li">
+            <label class="col_left_li">客户名称</label>
+            <label  class="col_left_li">
+            	${customerInfo.customerName}
+            </label >
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li">代维公司</label>
+            <label  class="col_left_li">
+              	${companyInfo.companyName}
+            </label >
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li">业务类型</label>
+            <label  class="col_left_li">
+                ${businessCodeInfo.businessName}
+            </label >
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li">合同状态</label>
+            <label  class="col_left_li">
+                ${stateInfo.name}
+            </label >
+        </div>
+       <div class="form_g_li">
+            <label class="col_left_li">开始日期 </label>
+            <label  class="col_left_li">
+                ${contractInfo.startDate}
+            </label >
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li">结束日期 </label>
+            <label class="col_left_li">
+                ${contractInfo.endDate}
+            </label >
+        </div>
+        <div>
+            <label class="col_left_li">合同内容 </label>
+            <label class="col_left_li">
+				${contractInfo.content}
+			</label>
+        </div>
+    </div>
+</form>

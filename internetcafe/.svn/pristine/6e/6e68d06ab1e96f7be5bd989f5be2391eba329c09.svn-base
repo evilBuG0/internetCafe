@@ -1,0 +1,465 @@
+package com.ideal.oms.web.controller.workorder;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.util.WebUtils;
+
+import com.ideal.oms.entity.BusinessCode;
+import com.ideal.oms.entity.Customer;
+import com.ideal.oms.entity.DispatchQueue;
+import com.ideal.oms.entity.MaintainCompany;
+import com.ideal.oms.entity.MaintainContract;
+import com.ideal.oms.entity.Malfunction;
+import com.ideal.oms.entity.WifiEquipment;
+import com.ideal.oms.entity.Workorder;
+import com.ideal.oms.entity.WorkorderHang;
+import com.ideal.oms.entity.WorkorderOperateRecord;
+import com.ideal.oms.entity.WorkorderState;
+import com.ideal.oms.entity.security.User;
+import com.ideal.oms.framework.orm.SearchFilter;
+import com.ideal.oms.framework.web.json.JsonObject;
+import com.ideal.oms.framework.web.message.WebMessageLevel;
+import com.ideal.oms.security.service.SecurityServiceImp;
+import com.ideal.oms.service.BusinessService;
+import com.ideal.oms.service.CompanyService;
+import com.ideal.oms.service.CustomerService;
+import com.ideal.oms.service.DispatchQueueService;
+import com.ideal.oms.service.MaintainContractService;
+import com.ideal.oms.service.MalfunctionService;
+import com.ideal.oms.service.RecordService;
+import com.ideal.oms.service.WifiEquipmentService;
+import com.ideal.oms.service.WorkorderHangService;
+import com.ideal.oms.service.WorkorderService;
+import com.ideal.oms.util.DateUtils;
+
+/**
+ * Created by fekindai
+ */
+@Controller
+@RequestMapping(AbstractOrderController.PORTAL_PREFIX)
+public class WorkorderManageController extends AbstractOrderController {
+	@Resource
+	private WorkorderService workorderService;
+	@Resource
+	private MalfunctionService malfunctionService;
+	@Resource
+	private BusinessService businessService;
+	@Resource
+	private MaintainContractService maintainContractService;
+	@Resource
+	private WifiEquipmentService wifiEquipmentService;
+	@Resource
+	private CustomerService customerService;
+	@Resource
+	private RecordService recordService;
+	@Resource
+	private SecurityServiceImp securityService;
+	@Resource
+	private CompanyService companyService;
+	@Resource
+	private WorkorderHangService workorderHangService;
+	@Resource
+	private DispatchQueueService dispatchQueueService;
+
+	@RequestMapping("broken_accept")
+	public void accept(HttpServletRequest request, Model model)
+			throws Exception {
+		List<BusinessCode> businessInfo = businessService.findAll();
+		model.addAttribute("businessInfo", businessInfo);
+
+	}
+
+	@RequestMapping("broken_handle")
+	public void handle(
+			HttpServletRequest request,
+			Model model,
+			@RequestParam(value = "startTime", required = false) String startTime,
+			@RequestParam(value = "endTime", required = false) String endTime)
+			throws Exception {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Map<String, Object> searchParams = WebUtils.getParametersStartingWith(
+				request, "Q_");
+		model.addAttribute("workorderState",
+				searchParams.get("EQ_workorderState.id"));
+		model.addAttribute("customerName",
+				searchParams.get("LIKE_customer.customerName"));
+		Map<String, SearchFilter> filters = SearchFilter.parse(searchParams);
+		Sort sort = new Sort(Sort.Direction.DESC, "id");
+		Collection<SearchFilter> searchFilters = new ArrayList<SearchFilter>(
+				filters.values());
+		// 查询未归档的订单
+		searchFilters.add(new SearchFilter("workorderState.id",
+				SearchFilter.Operator.NEQ, 7));
+		searchFilters.add(new SearchFilter("delFlag", SearchFilter.Operator.EQ,
+				0));
+		if (StringUtils.isNotBlank(startTime)) {
+			searchFilters.add(new SearchFilter("reportDate",
+					SearchFilter.Operator.GTE, DateUtils
+							.dayStartTime(dateFormat.parse(startTime))));
+		}
+		if (StringUtils.isNotBlank(endTime)) {
+			searchFilters.add(new SearchFilter("reportDate",
+					SearchFilter.Operator.LT, DateUtils.dayEndTime(dateFormat
+							.parse(endTime))));
+		}
+		Page<Workorder> page = workorderService.searchWorkOrderHistory(
+				searchFilters, buildPageRequest(request, 10, sort));
+		model.addAttribute("page", page);
+	}
+
+	@RequestMapping("broken_history")
+	public void history(
+			HttpServletRequest request,
+			Model model,
+			@RequestParam(value = "startTime", required = false) String startTime,
+			@RequestParam(value = "endTime", required = false) String endTime)
+			throws Exception {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Map<String, Object> searchParams = WebUtils.getParametersStartingWith(
+				request, "Q_");
+		model.addAttribute("customerName",
+				searchParams.get("LIKE_customer.customerName"));
+		Map<String, SearchFilter> filters = SearchFilter.parse(searchParams);
+		Sort sort = new Sort(Sort.Direction.DESC, "id");
+		Collection<SearchFilter> searchFilters = new ArrayList<SearchFilter>(
+				filters.values());
+		// 查询已归档的订单
+		searchFilters.add(new SearchFilter("workorderState.id",
+				SearchFilter.Operator.EQ, 7));
+		searchFilters.add(new SearchFilter("delFlag", SearchFilter.Operator.EQ,
+				0));
+		if (StringUtils.isNotBlank(startTime)) {
+			searchFilters.add(new SearchFilter("reportDate",
+					SearchFilter.Operator.GTE, DateUtils
+							.dayStartTime(dateFormat.parse(startTime))));
+		}
+		if (StringUtils.isNotBlank(endTime)) {
+			searchFilters.add(new SearchFilter("reportDate",
+					SearchFilter.Operator.LT, DateUtils.dayEndTime(dateFormat
+							.parse(endTime))));
+		}
+		Page<Workorder> page = workorderService.searchWorkOrderHistory(
+				searchFilters, buildPageRequest(request, 10, sort));
+		model.addAttribute("page", page);
+	}
+
+	@RequestMapping("get_customer_by_business")
+	@ResponseBody
+	public String getCustomerByBusiness(Model model,
+			HttpServletRequest request,
+			@RequestParam(required = false) Long businessId) {
+		List<MaintainContract> maintainContract = maintainContractService
+				.findMaintainContractByBusiness(businessId);
+		List<Long> c_ids = new ArrayList<Long>();
+		for (MaintainContract m : maintainContract) {
+			c_ids.add(m.getCustomer().getId());
+			System.out.println(m.getCustomer().getId());
+		}
+		List<Customer> customerinfo = new ArrayList<Customer>();
+		if (c_ids.size() > 0) {
+			customerinfo = customerService.findCustomerByids(c_ids);
+		}
+		System.out.println(customerinfo.size()+"customerinfoNum----------------------");
+		com.alibaba.fastjson.JSONObject  josn =new com.alibaba.fastjson.JSONObject();
+		return josn.toJSONString(customerinfo);
+		//return customerinfo;
+	}
+
+	@RequestMapping("get_malfunction_by_business")
+	@ResponseBody
+	public List<Malfunction> getCustomerByMalfunction(Model model,
+			HttpServletRequest request,
+			@RequestParam(required = false) Long businessId) {
+		//
+		List<Malfunction> malfunctiontinfo = malfunctionService
+				.findMalfunctionByBusiness(businessId);
+		
+		
+		return malfunctiontinfo;
+	}
+
+	@RequestMapping("get_equipment_by_customer")
+	@ResponseBody
+	public List<WifiEquipment> getEquipmentByCustomer(Model model,
+			HttpServletRequest request,
+			@RequestParam(required = false) Long customerId) {
+		List<WifiEquipment> equipmentinfo = wifiEquipmentService
+				.findWiflIdByCustomer(customerId);
+		return equipmentinfo;
+	}
+
+	@RequestMapping("save_workorder")
+	@ResponseBody
+	public JsonObject<?> saveWorkorder(Model model,
+			@RequestParam(required = false) Long business,
+			@RequestParam(required = false) Long customer,
+			@RequestParam(required = false) String customerAddress,
+			@RequestParam(required = false) Long equipment,
+			@RequestParam(required = false) String equipmentAddress,
+			@RequestParam(required = false) String troublePhenomenon,
+			@RequestParam(required = false) String troubleDescribe)
+			throws Exception {
+		System.out.println("save......................begin");
+		String malfunctionId = troublePhenomenon.substring(0,
+				troublePhenomenon.length() - 1);
+		String[] malfunctionArry = malfunctionId.split(",");
+		List<Long> malfunctionIds = new ArrayList<Long>();
+		for (String stu : malfunctionArry) {
+			malfunctionIds.add(Long.valueOf(stu));
+		}
+		List<Malfunction> malfunctionList = malfunctionService
+				.findMalfunctionByIds(malfunctionIds);
+		StringBuffer subTroublePhenomenon = new StringBuffer();
+		// 获取故障类型名称
+		for (Malfunction m : malfunctionList) {
+			subTroublePhenomenon.append(m.getMalfunctionName() + ",");
+		}
+		// 预计维修时间 当前时间+1
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.DAY_OF_MONTH, 1);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+		Workorder workOrder = new Workorder();
+		workOrder.setWorkorderNo(dateFormat.format(new Date()));
+		workOrder.setCustomer(new Customer(customer));
+		workOrder.setBusinessCode(new BusinessCode(business));
+		workOrder.setWifiEquipment(new WifiEquipment(equipment));
+		workOrder.setEquipmentAddress(equipmentAddress);
+		workOrder.setTroublePhenomenon(subTroublePhenomenon.substring(0,
+				subTroublePhenomenon.length() - 1));
+		workOrder.setTroubleDescribe(troubleDescribe);
+		workOrder.setReportDate(new Date());
+		workOrder.setReportFrom(0L);// 有待更改 1为平台 0移动终端
+		// workOrder.setReportPerson();
+		workOrder.setWorkorderState(new WorkorderState(1L));
+		workOrder.setMaintainDate(c.getTime());
+		workOrder.setDelFlag(0L);
+		// 添加报修订单
+		workorderService.saveWorkorder(workOrder);
+		// 向操作记录表中添加一条待派发的记录
+		WorkorderOperateRecord workOrderRecord = new WorkorderOperateRecord();
+		workOrderRecord.setWorkorder(workOrder);
+		workOrderRecord.setUser(securityService.getLoginUser());
+		workOrderRecord.setWorkorderState(new WorkorderState(1L));// 待派发状态
+		workOrderRecord.setOperateDate(new Date());
+		recordService.saveWorkorderOperateRecord(workOrderRecord);
+		//向派发队列表中添加数据
+		DispatchQueue dispatchQueue=new DispatchQueue();
+		dispatchQueue.setWorkorder(workOrder);
+		dispatchQueue.setCreateDate(new Date());
+		dispatchQueueService.saveDispatchQueue(dispatchQueue);
+		return JsonObject.success();
+	}
+	
+	//工单手动派发 workorder_ distribute_pop.jsp
+	@RequestMapping("distribute_pop")
+	public void workordistributepop(Model model,
+			@RequestParam(value = "id", required = false) Long id) {
+		Workorder workorderInfo=workorderService.findWorkorderById(id);
+		List<MaintainCompany> maintainCompany= companyService.findAll();
+		model.addAttribute("workorderInfo", workorderInfo);
+		model.addAttribute("maintainCompany", maintainCompany);
+		
+	}
+	//挂起
+	@RequestMapping("workOrder_hangUp")
+	@ResponseBody
+	public JsonObject workOrderHangUp(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Long [] workorderIds) {
+		boolean flag=true;
+		StringBuffer workOrderNo=new StringBuffer();
+		Iterable<Workorder> orderList=workorderService.findWorkorderByIds(workorderIds);
+		for(Workorder orderinfo:orderList){
+			//判断是否已响应，待响应状态不可挂起
+			if(orderinfo.getWorkorderState().getId()==3L){//待回单状态
+				orderinfo.setWorkorderState(new WorkorderState(5L));//挂起状态
+				workorderService.saveWorkorder(orderinfo);
+				//保存操作记录表
+				WorkorderOperateRecord workOrderRecordx = new WorkorderOperateRecord();
+				workOrderRecordx.setWorkorder(orderinfo);
+				workOrderRecordx.setUser(securityService.getLoginUser());
+				workOrderRecordx.setWorkorderState(new WorkorderState(5L));// 挂起状态
+				workOrderRecordx.setOperateDate(new Date());
+				recordService.saveWorkorderOperateRecord(workOrderRecordx);
+				//保存挂起表
+				WorkorderHang hang=new WorkorderHang();
+				hang.setWorkorder(orderinfo);
+				hang.setHangPerson(securityService.getLoginUser().getUsername());
+				hang.setHangDate(new Date());
+				workorderHangService.saveWorkorderHang(hang);
+			}else{
+				flag=false;
+				workOrderNo.append(orderinfo.getWorkorderNo()+",");
+			}
+			
+		}
+		JSONObject ajaxResult = new JSONObject();
+		if(flag){
+			ajaxResult.put("type", "success");
+			ajaxResult.put("message", "订单挂起成功!");
+			return JsonObject.success(JsonObject.typeAlert, ajaxResult,
+					"订单挂起成功!"); 
+		}else{
+			return JsonObject.alert("订单："+workOrderNo.toString().substring(0, workOrderNo.toString().length()-1)+" 未响应,无法挂起！", WebMessageLevel.ERROR);
+		}
+		
+		
+	}
+	//解挂
+	@RequestMapping("workOrder_hangDown")
+	@ResponseBody
+	public JsonObject workOrderHangDown(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Long[] workorderIds) {
+		Iterable<Workorder> orderList=workorderService.findWorkorderByIds(workorderIds);
+		boolean flag=true;
+		StringBuffer workOrderNo=new StringBuffer();
+		for(Workorder orderinfo:orderList){
+			if(orderinfo.getWorkorderState().getId()==5L){//如果状态为挂起
+				orderinfo.setWorkorderState(new WorkorderState(3L));//待回单状态
+				workorderService.saveWorkorder(orderinfo);
+				//保存操作记录表
+				WorkorderOperateRecord workOrderRecordx = new WorkorderOperateRecord();
+				workOrderRecordx.setWorkorder(orderinfo);
+				workOrderRecordx.setUser(securityService.getLoginUser());
+				workOrderRecordx.setWorkorderState(new WorkorderState(3L));// 待回单状态
+				workOrderRecordx.setOperateDate(new Date());
+				recordService.saveWorkorderOperateRecord(workOrderRecordx);
+				//向解挂表添加解挂时间
+				List<WorkorderHang> hangList=workorderHangService.findHangByWorkorderId(orderinfo.getId());
+				//获得最后一行挂起信息
+				WorkorderHang hang=hangList.get(hangList.size()-1);
+				hang.setUntiePerson(securityService.getLoginUser().getUsername());
+				hang.setUntieDate(new Date());
+				workorderHangService.saveWorkorderHang(hang);
+			}else{
+				flag=false;
+				workOrderNo.append(orderinfo.getWorkorderNo()+",");
+			}
+			
+		}
+		JSONObject ajaxResult = new JSONObject();
+		if(flag){
+			ajaxResult.put("type", "success");
+			ajaxResult.put("message", "订单解挂成功!");
+			return JsonObject.success(JsonObject.typeAlert, ajaxResult,
+					"订单解挂成功!"); 
+		}else{
+			return JsonObject.alert("订单："+workOrderNo.toString().substring(0, workOrderNo.toString().length()-1)+" 未挂起,无需解挂！", WebMessageLevel.ERROR);
+		}
+	}
+	//改约
+	@RequestMapping("workOrder_Change")
+	@ResponseBody
+	public JsonObject workOrderChange(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Long[] workorderIds) {
+		Iterable<Workorder> orderList=workorderService.findWorkorderByIds(workorderIds);
+		boolean flag=true;
+		StringBuffer workOrderNo=new StringBuffer();
+		for(Workorder orderinfo:orderList){
+			if(orderinfo.getWorkorderState().getId()==4L){//如果状态改约待确认
+				orderinfo.setWorkorderState(new WorkorderState(5L));//待回单状态
+				workorderService.saveWorkorder(orderinfo);
+				//保存操作记录表
+				WorkorderOperateRecord workOrderRecordx = new WorkorderOperateRecord();
+				workOrderRecordx.setWorkorder(orderinfo);
+				workOrderRecordx.setUser(securityService.getLoginUser());
+				workOrderRecordx.setWorkorderState(new WorkorderState(5L));// 待回单状态
+				workOrderRecordx.setOperateDate(new Date());
+				recordService.saveWorkorderOperateRecord(workOrderRecordx);
+				//保存挂起表
+				WorkorderHang hang=new WorkorderHang();
+				hang.setWorkorder(orderinfo);
+				hang.setHangPerson(securityService.getLoginUser().getUsername());
+				hang.setHangDate(new Date());
+				workorderHangService.saveWorkorderHang(hang);
+			}else{
+				flag=false;
+				workOrderNo.append(orderinfo.getWorkorderNo()+",");
+			}
+			
+		}
+		JSONObject ajaxResult = new JSONObject();
+		if(flag){
+			ajaxResult.put("type", "success");
+			ajaxResult.put("message", "订单改约成功!");
+			return JsonObject.success(JsonObject.typeAlert, ajaxResult,
+					"订单改约成功!"); 
+		}else{
+			return JsonObject.alert("订单："+workOrderNo.toString().substring(0, workOrderNo.toString().length()-1)+" 未提交改约申请,无需改约！", WebMessageLevel.ERROR);
+		}
+	}
+	@RequestMapping("get_userBelongs_by_company")
+	@ResponseBody
+	public String getUserBelongsByCompany(
+			HttpServletRequest request,
+			@RequestParam(required = false) Long companyId) {
+		List<User> userBelongs=securityService.findUserByCompanyId(companyId);
+		System.out.println(userBelongs.size()+"----------------------------");
+		com.alibaba.fastjson.JSONObject  josn =new com.alibaba.fastjson.JSONObject();
+		return josn.toJSONString(userBelongs);
+		//return userBelongs;
+	}
+	//save_distribute_pop
+	@RequestMapping("save_distribute_pop")
+	@ResponseBody
+	public JsonObject saveDistributePop(Model model,
+			@RequestParam(required = false) Long workorderId,
+			@RequestParam(required = false) Long maintainCompany,
+			@RequestParam(required = false) Long userId){
+		User userinfo=securityService.findUserById(userId);
+		Workorder orderinfo=workorderService.findWorkorderById(workorderId);
+		if(StringUtils.isBlank(orderinfo.getMaintainPerson())){
+			orderinfo.setMaintainPerson(userinfo.getUsername());
+			if(StringUtils.isNotBlank(userinfo.getRealName())){
+				orderinfo.setMaintainPersonRealname(userinfo.getRealName());
+			}
+			orderinfo.setWorkorderState(new WorkorderState(2L));
+			workorderService.saveWorkorder(orderinfo);
+			//保存操作记录表
+			WorkorderOperateRecord workOrderRecordx = new WorkorderOperateRecord();
+			workOrderRecordx.setWorkorder(orderinfo);
+			workOrderRecordx.setUser(securityService.getLoginUser());
+			workOrderRecordx.setWorkorderState(new WorkorderState(2L));// 待响应状态
+			workOrderRecordx.setOperateDate(new Date());
+			recordService.saveWorkorderOperateRecord(workOrderRecordx);
+			JSONObject ajaxResult = new JSONObject();
+			ajaxResult.put("type", "success");
+			ajaxResult.put("message", "订单派发成功!");
+			return JsonObject.success(JsonObject.typeAlert, ajaxResult,
+					"订单派发成功!"); 
+		}else{
+			return JsonObject.alert("此订单已派发，不可重复派发！", WebMessageLevel.ERROR);
+		}
+		
+	}
+	@RequestMapping("broken_detail_pop")
+	public void workorderdetailpop(Model model,
+			@RequestParam(value = "id", required = false) Long id) {
+		Workorder workorderInfo = workorderService.findWorkorderById(id);
+		model.addAttribute("workorderInfo", workorderInfo);
+		List<WorkorderOperateRecord> recordList = recordService
+				.findWorkorderOperateRecordById(id);
+		model.addAttribute("operateRecord", recordList);
+	}
+}

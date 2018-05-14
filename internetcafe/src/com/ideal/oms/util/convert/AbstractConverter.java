@@ -1,0 +1,22 @@
+package com.ideal.oms.util.convert;
+
+public abstract class AbstractConverter implements Converter {
+
+	protected Object defaultValue = null;
+
+	public AbstractConverter() {
+	}
+
+	public AbstractConverter(Object defaultValue) {
+		this.defaultValue = defaultValue;
+	}
+
+	public Object getDefaultValue() {
+		return defaultValue;
+	}
+
+	protected String convertToString(Object value) {
+		return value == null ? "" : value.toString();
+	}
+
+}

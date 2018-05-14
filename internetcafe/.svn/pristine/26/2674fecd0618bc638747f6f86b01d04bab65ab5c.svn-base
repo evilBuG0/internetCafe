@@ -1,0 +1,28 @@
+package com.ideal.oms.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import com.ideal.oms.entity.Malfunction;
+import com.ideal.oms.framework.orm.JpaRepository;
+
+/**
+ * Created by Administrator on 16-2-23.
+ */
+@Repository
+public interface MalfunctionRepository extends JpaRepository<Malfunction, Long> {
+
+	@Query("SELECT o FROM Malfunction o WHERE o.delFlag = 0 and o.businessCode.id=?1")
+	public List<Malfunction> findMalfunctionByBusiness(Long business_id);
+	
+	@Query("SELECT o FROM Malfunction o WHERE o.delFlag = 0 and id in(?1)")
+	public List<Malfunction> findMalfunctionByIds(List<Long> ids);
+	
+	@Query("SELECT o FROM Malfunction o WHERE o.delFlag = 0 and id =?1")
+	public Malfunction findMalfunctionById(Long id);
+	
+	@Query("SELECT o FROM Malfunction o WHERE o.delFlag = 0 and malfunctionName =?1")
+	public Malfunction findMalfunctionByName(String name);
+}

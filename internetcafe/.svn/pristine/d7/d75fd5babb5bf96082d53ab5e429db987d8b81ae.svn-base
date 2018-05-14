@@ -1,0 +1,72 @@
+package com.ideal.oms.service;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import com.ideal.oms.entity.Customer;
+import com.ideal.oms.framework.orm.DynamicSpecifications;
+import com.ideal.oms.framework.orm.SearchFilter;
+import com.ideal.oms.repository.CustomerRepository;
+
+
+/**
+ * Created by Administrator on 16-2-23.
+ */
+@Service
+public class CustomerService {
+	@Resource
+	private CustomerRepository customerRepository;
+
+	public Page<Customer> searchCustomerlist(Map<String, Object> searchParams,
+			Pageable pageable) {
+		Map<String, SearchFilter> filters = SearchFilter.parse(searchParams);
+		filters.put("delFlag", new SearchFilter("delFlag",
+				SearchFilter.Operator.EQ, 0));
+		Specification<Customer> spec = DynamicSpecifications
+				.bySearchFilter(filters.values());
+		Page<Customer> Customerlist = customerRepository.findAll(spec, pageable);
+		return Customerlist;
+	}
+
+	public Customer findCustomerOne(Long id) {
+		return customerRepository.findOne(id);
+	}
+
+	public void savCustomer(Customer Customer) {
+		customerRepository.save(Customer);
+	}
+
+	public void deleteCustomer(Long[] ids) {
+		Iterable<Customer> CustomerStates = customerRepository.findAll(Arrays
+				.asList(ids));
+		for (Customer CustomerState : CustomerStates) {
+			CustomerState.setDelFlag(Long.valueOf(1));
+		}
+		customerRepository.save(CustomerStates);
+
+	}
+
+	public List<Customer> findAll() {
+		return customerRepository.findAll();
+	}
+
+
+	public List<Customer> findCustomerByids(List<Long> c_ids){
+		return customerRepository.findCustomerByids(c_ids);
+	}
+
+	
+	public Customer findCustomerByName(String customerName) {
+		return customerRepository.findCustomerByName(customerName);
+	}
+	
+
+}

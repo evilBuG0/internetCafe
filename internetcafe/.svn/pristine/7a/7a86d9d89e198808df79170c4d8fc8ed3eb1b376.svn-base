@@ -1,0 +1,203 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@include file="/WEB-INF/jsp/common/taglib.jsp" %>
+<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %>
+<html>
+<head>
+
+    <title>报障处理</title>
+    <link rel="stylesheet" href="${ctxRoot}/static/css/jquery-ui.min.css">
+<script src="${ctxRoot}/static/js/jquery-ui-1.10.3.min.js"></script>
+<script src="${ctxRoot}/static/js/base64.js"></script>
+<script src="${ctxRoot}/static/js/scriptLib.js"></script>
+<link rel="stylesheet" href="${ctxRoot}/static/framework/selectator/fm.selectator.jquery.css" type="text/css">
+    <script src="${ctxRoot}/static/framework/selectator/fm.selectator.jquery.js"></script>
+	<style>
+	.form-group_li{
+		margin-bottom:10px;
+	}
+	</style>
+    <script type="text/javascript" language="JavaScript">
+        function reportData(){
+            report('searchForm',{exportData:1});
+        }
+
+        function viewRepeat(id){
+            $panel = $("#viewRepeatId");
+            $panel.empty();
+            $panel.load('broken_detail_pop.do', {'id': id}, function() { });
+            $("#viewRepeatId").dialog({
+                closeOnEscape: false,
+                resizable: true,
+                draggable: true,
+                height: 600,
+                width: 1000,
+                modal: true,
+                buttons: {
+                    "关闭": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        }
+        function getUserBelongsByCompany(){
+        	var maintainCompany = $("#maintainCompany option:selected").val();
+        	 $("#userId").empty();
+        	 $("#userId").append("<option value=''>---请选择维修人员---</option>");
+        	 if (maintainCompany != "") {
+        	        $.post("${ctx}/get_userBelongs_by_company.do", "companyId="+maintainCompany, function(data){
+        	            for(var i = 0 ; i < data.length ; i++){
+        	                $("#userId").append("<option value='"+data[i]["id"]+"'>"+data[i]["username"]+" </option>");
+        	            }
+        	        },"json");
+        	    }
+        }
+    </script>
+</head>
+<body>
+<div class="breadcrumbs" id="breadcrumbs">
+    <ul class="breadcrumb">
+        <li>
+            <i class="icon-home home-icon"></i>
+            <a href="${ctxRoot}">首页</a>
+        </li>
+        <li>
+            工单管理
+        </li>
+        <li class="active">
+            故障处理
+        </li>
+    </ul>
+</div>
+<div id="viewRepeatId" title="工单详情" style="display: none;"></div>
+<div class="page-content">
+    <form id="searchForm" action="${ctxRoot}/workorder/broken_handle.do" method="post" onsubmit="return search(this);">
+        <div class="row_height_s" style="height:auto;">
+				<div class="form-group_li">
+					<input type="text" placeholder="报修单位" class="col_d"
+						name="Q_LIKE_customer.customerName"
+						value="${customerName}" />
+				</div>
+				<div class="form-group_li">
+					<input type="text" placeholder="报修地址" class="col_d"
+						name="Q_LIKE_equipmentAddress"
+						value="${param.Q_LIKE_equipmentAddress}" />
+				</div>
+				<div class="form-group_li">
+					<input type="text" placeholder="工单编号" class="col_d" name="Q_EQ_workorderNo"
+						value="${param.Q_EQ_workorderNo}" />
+				</div>
+	            <div class="form-group_li">
+	                <div class="col_right_li">
+	                    <select name="Q_EQ_workorderState.id">
+	                        <option value="" <c:if test="${workorderState == ''}">selected</c:if>>---请选择工单状态---</option>
+	                        <option value="1" <c:if test="${workorderState == 1}">selected</c:if>>待派单</option>
+	                        <option value="2" <c:if test="${workorderState == 2}">selected</c:if>>待响应</option>
+	                        <option value="3" <c:if test="${workorderState == 3}">selected</c:if>>待回单</option>
+	                        <option value="4" <c:if test="${workorderState == 4}">selected</c:if>>改约待确认</option>
+	                        <option value="5" <c:if test="${workorderState == 5}">selected</c:if>>挂起</option>
+	                        <option value="6" <c:if test="${workorderState == 6}">selected</c:if>>待确认</option>
+	                    </select>
+	                </div>
+	            </div>
+            	<div class="form-group_li">
+					<div class="col_right_li">
+						<select name="Q_EQ_reportFrom">
+							<option value="">--请选择报障来源--</option>
+							<option value="平台受理" <c:if test="${param.Q_EQ_reportFrom == '平台受理'}">selected</c:if>>平台受理</option>
+							<option value="移动终端" <c:if test="${param.Q_EQ_reportFrom == '移动终端'}">selected</c:if>>移动终端</option>
+						</select>
+					</div>
+				</div>
+            <button class="btn btn-primary btn-sm" type="submit">
+                搜索<i class="icon-search icon-on-right bigger-110"></i>
+            </button>
+            <button class="btn btn-primary btn-sm" type="button" onclick="">
+                导出
+            </button>
+        </div>
+    </form>
+    <div class="row row_height_y">
+            <div class="ui-pg-div icon_left">
+                <button class="btn btn-minier btn-primary"
+                onClick="win.init({title:'工单派发'}).show('${ctx}/distribute_pop.do?id={id}',{})"
+                >派发
+                </button>
+            </div>
+            <div class="ui-pg-div icon_left">
+                <button class="btn btn-minier btn-danger"
+                onClick="win.init({title:'确定要挂起吗？'}).hangupordown('${ctx}/workOrder_hangUp.do?id={id}','','','确定要挂起吗？')"
+                >挂起
+                </button>
+            </div>
+            <div class="ui-pg-div icon_left">
+                <button class="btn btn-minier btn-info"
+                 onClick="win.init({title:'确定要解挂吗？'}).hangupordown('${ctx}/workOrder_hangDown.do?id={id}','','','确定要解挂吗？')"
+                >解挂
+                </button>
+            </div>
+            <div class="ui-pg-div icon_left">
+                <button class="btn btn-minier btn-success">催修
+                </button>
+            </div>
+            <div class="ui-pg-div icon_left">
+                <button class="btn btn-minier btn-primary"
+                 onClick="win.init({title:'确定要改约吗？'}).hangupordown('${ctx}/workOrder_Change.do?id={id}','','','确定要改约吗？')"
+                >改约确认
+                </button>
+            </div>
+    </div>
+    <div class="table-responsive" id = "wifiEquip">
+        <table class="table table-striped table-bordered table-hover dataTable">
+            <thead>
+            <tr>
+                <th class="center">
+                    <label>
+                        <input type="checkbox" class="ace" onclick="checkAll(this);">
+                        <span class="lbl"></span>
+                    </label>
+                </th>
+                <th>工单编号</th>
+                <th>工单状态</th>
+                <th>报障来源</th>
+                <th>报修单位</th>
+                <th>报修人</th>
+                <th>报修地址</th>
+                <th>报修设备</th>
+                <th>报修时间</th>
+                <th>详情按钮</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <c:forEach items="${page.content}" var="item">
+                <tr>
+                    <td class="center">
+                        <label>
+                            <input type="checkbox" class="ace" name="id" value="${item.id}"/>
+                            <span class="lbl"></span>
+                        </label>
+                    </td>
+                    <td>${item.workorderNo}</td>
+                    <td>${item.workorderState.state}</td>
+                    <td>${item.reportFrom }</td>
+                    <td>${item.customer.customerName }</td>
+                    <td>${item.reportPerson }</td>
+                    <td>${item.equipmentAddress }</td>
+                    <td>${item.wifiEquipment.name }</td>
+                    <td>${item.reportDate }</td>
+                    <td >
+                    <input title="查看工单详情" style="width:22px;length:22px;" type='image' src="${ctxRoot}/static/images/search.png" 
+                    			onclick="viewRepeat(${item.id});"/>
+                    </td>
+                </tr>
+            </c:forEach>
+            </tbody>
+        </table>
+        <div class="row row_height_x message-footer">
+            <tags:page page="${page}"/>
+        </div>
+    </div>
+</div>
+</body>
+</html>

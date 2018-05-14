@@ -1,0 +1,23 @@
+package com.ideal.oms.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import com.ideal.oms.entity.DispatchQueue;
+import com.ideal.oms.framework.orm.JpaRepository;
+
+/**
+ * Created by Administrator on 16-2-23.
+ */
+@Repository
+public interface DispatchQueueRepository extends JpaRepository<DispatchQueue, Long> {
+	
+	@Query("SELECT o FROM DispatchQueue o")
+	public List<DispatchQueue> findAll();
+	
+	
+	
+	
+}

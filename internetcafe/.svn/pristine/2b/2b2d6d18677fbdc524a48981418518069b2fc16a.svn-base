@@ -1,0 +1,66 @@
+package com.ideal.oms.service;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import com.ideal.oms.entity.Malfunction;
+import com.ideal.oms.framework.orm.DynamicSpecifications;
+import com.ideal.oms.framework.orm.SearchFilter;
+import com.ideal.oms.repository.MalfunctionRepository;
+
+/**
+ * Created by Administrator on 16-2-23.
+ */
+@Service
+public class MalfunctionService {
+	@Resource
+	private MalfunctionRepository malfunctionRepository;
+
+	public List<Malfunction> findMalfunctionByBusiness(Long business_id) {
+		return malfunctionRepository.findMalfunctionByBusiness(business_id);
+	}
+
+	// findMalfunctionByIds
+	public List<Malfunction> findMalfunctionByIds(List<Long> ids) {
+		return malfunctionRepository.findMalfunctionByIds(ids);
+	}
+	
+	public Malfunction findMalfunctionById(Long id){
+		return malfunctionRepository.findMalfunctionById(id);
+	}
+
+	public Page<Malfunction> searchMalfunction(Map<String, Object> searchParams,
+			Pageable pageable) {
+		Map<String, SearchFilter> filters = SearchFilter.parse(searchParams);
+		filters.put("delFlag", new SearchFilter("delFlag",
+				SearchFilter.Operator.EQ, 0));
+		Specification<Malfunction> spec = DynamicSpecifications.bySearchFilter(filters
+				.values());
+		Page<Malfunction> malfunction = malfunctionRepository.findAll(spec,pageable);
+		return malfunction;
+	}
+	
+	public void saveMalfunction(Malfunction malfunction){
+		malfunctionRepository.save(malfunction);
+	}
+	
+	public Malfunction findMalfunctionByName(String name){
+		return malfunctionRepository.findMalfunctionByName(name);
+	}
+	public void deleteMalfunction(Long[] ids) {
+		Iterable<Malfunction> malfunctions = malfunctionRepository.findAll(Arrays.asList(ids));
+		for (Malfunction malfunction : malfunctions) {
+			malfunction.setDelFlag(1L);
+		}
+		malfunctionRepository.save(malfunctions);
+	}
+
+}

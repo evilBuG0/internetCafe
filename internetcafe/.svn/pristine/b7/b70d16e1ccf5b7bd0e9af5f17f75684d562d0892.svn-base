@@ -1,0 +1,327 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@include file="/WEB-INF/jsp/common/taglib.jsp" %>
+<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %>
+<style>
+a{
+	text-decoration:none;
+}
+a:link {
+color:#FF0000;
+}
+a:visited {
+color:red;
+}
+a:hover {
+color:#000000;
+}
+a:active {
+color:#FFFFFF;
+}
+
+#naviTab ul {
+    margin: 0 -5px;
+}
+div.inner-page-title {
+    margin-bottom: 0px;
+    border: 0;
+}
+.content-box {
+    padding-bottom: 0;
+}
+.content-box div.row {
+    margin-bottom: 15px;
+}
+.content-box div.row:first-child {
+    margin-top: 15px;
+}
+.hastable.content-box div.row:first-child {
+    margin-top: 0;
+}
+.content-box .col-md-1 {
+    text-align: right;
+}
+.content-box .col-md-1 label {
+    line-height: 32px;
+}
+</style>
+<div id="viewRepeatId" title="设备详情" style="display: none;"></div>
+<div class="page-content">
+	<div class="inner-page-title">
+	    <div style="min-height:10px" >
+	        <div id="naviTab" class="ui-tabs ui-widget-content ui-corner-all" >
+	            <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="width:100%;">
+	                <li class="ui-state-default ui-corner-top ui-tabs-active ui-state-active" style="margin-left:30px;">
+	                    <a  id="tuopu" href="#" >业务模型图</a>
+	                </li>
+	                <li class="ui-state-default ui-corner-top">
+	                    <a id="firm" href="#" >网络拓扑图</a>
+	                </li>
+					<li style="float:right;">
+					<input id="ret" type="image" src="${ctxRoot}/zTree/css/zTreeStyle/img/diy/return.png" style="display:none;"/>
+					</li>
+	            </ul>
+	        </div>
+		</div>
+		<div id="sitetitle" style="margin:0px auto;text-align:center;margin-top:30px;">
+		<input type="text" id="title" value="" style="border:0px;text-align:center;color:red;font-Size:20px;"/>
+		</div>
+		<div style="height:420px;width:100%;" id="canvas"></div>  
+		<div style="height:420px;width:100%;display:none;" id="canvas2" ></div>
+		<div style="height:480px;width:100%;display:none;margin:0px auto;text-align:center;" id="canvas3" >
+		<img id="photo" src="" height="100%;" />
+		</div>
+	</div>
+</div>
+
+<script src="${ctxRoot}/static/ace/js/bootstrap.min.js" charset="utf-8"></script>
+<script src="${ctxRoot}/qunee/demos/lib/qunee-min.js" charset="utf-8"></script>
+<script src="${ctxRoot}/qunee/demos/js/i18n.js" charset="utf-8"></script>
+<script src="${ctxRoot}/qunee/demos/js/graphs.js" charset="utf-8"></script>
+<script src="${ctxRoot}/qunee/demos/js/color.js" charset="utf-8"></script>
+<script>
+
+var site ='${site}';
+if(site == ""){
+	site = "外滩美术馆";
+	}
+var sitestr = encodeURI(site);
+console.info(site);
+var customerid ='${customerid}';
+if(customerid == ""){
+	customerid = 6;
+	}
+var customeridstr = encodeURI(customerid);	
+var graph = new Q.Graph('canvas');
+graph.originAtCenter = true;
+graph.scale = 0.5;
+var map = {};
+var url="${ctx}/NetworkPhoto_site.do?site="+sitestr;
+var nrl="${ctx}/NetworkPhoto_site3.do?id="+customeridstr;
+var mrl="${ctx}/NetworkPhoto_workorder.do?id="+customeridstr;
+var address;
+$("#title").val(site);
+var flagsum = 0;
+
+
+function createEdge(start, toNode,relation) {
+		var edge;
+		edge = graph.createEdge(start, toNode);
+		edge.info = relation;
+		edge.edgeType = Q.Consts.EDGE_TYPE_ORTHOGONAL_VERTICAL;
+}
+function createNode(node){
+			var nodeWithPNG = graph.createNode(node.name);
+			nodeWithPNG.set("data",node);
+			if(node.type == 'AC'){
+		    nodeWithPNG.image = "${ctxRoot}/qunee/demos/images/ex1.png";
+			}else if(node.type == '交换机'){
+				nodeWithPNG.image = "${ctxRoot}/qunee/demos/images/exchange.png";
+			}else{
+				flagsum++;
+			}
+			nodeWithPNG.clickable = true;
+			nodeWithPNG.dblclickable = true;
+			map[node.id] = nodeWithPNG;
+		
+			return nodeWithPNG;
+}
+function initTopology(topoNodes,topoRelations) {
+    for (var i = 0; i < topoNodes.length; i++) {
+			var node = createNode(topoNodes[i]);
+		}
+
+    for (var i = 0; i < topoRelations.length; i++) {
+        var relation = topoRelations[i];
+        var nodeFrom = map[relation.from];
+        var nodeTo = map[relation.to];
+        if (nodeFrom && nodeTo) {
+        	createEdge(nodeTo,nodeFrom,relation);
+        }
+    }
+}
+Q.loadJSON(url,function(json){
+	
+    initTopology(json.nodes, json.relations);
+     
+     graph.callLater(function(){
+        var layouter = new Q.TreeLayouter(graph);
+        layouter.parentChildrenDirection = Q.Consts.DIRECTION_BOTTOM;
+        layouter.doLayout();
+        graph.moveToCenter(1, false);
+		graph.zoomToOverview(true,1);
+    })
+    
+});
+$.getJSON(nrl,null,function(json){
+	address = json.content;
+	$("#photo").attr('src',address);
+});
+$.getJSON(mrl,null,function(json){
+	 var arr = json.list;
+	 if(flagsum != 0){
+		setTimeout(function A(){
+		graph.forEach(function(element){
+		for(var i = 0;i < arr.length; i++){
+		if(element.properties.data != null){
+		if(arr[i].wId == (element.properties.data.id)){
+			element.alarmColor = AlarmSeverity.CRITICAL.color;	
+		}}}
+		})
+	},500); 
+	}else{
+		setTimeout(function A(){
+		graph.forEach(function(element){
+		for(var i = 0;i < arr.length; i++){
+		if(element.properties.data != null){
+			if(arr[i].type != "AP"){
+			if(arr[i].wId == (element.properties.data.id)){
+			element.alarmColor = AlarmSeverity.CRITICAL.color;	
+		    }}else{
+				if(arr[i].pid == (element.properties.data.id)){
+				 element.alarmColor = AlarmSeverity.CRITICAL.color;
+		}}}}
+		})
+	},500); 
+	}
+     
+});
+function createText(name, x, y, fontSize, color){
+    var text = graph.createText(name, x, y);
+	text.parentChildrenDirection = Q.Consts.DIRECTION_BOTTOM;
+    text.setStyle(Q.Styles.LABEL_FONT_SIZE, fontSize);
+    text.setStyle(Q.Styles.LABEL_COLOR, color);
+	return text;
+}
+
+function destroy(){
+    clearTimeout(timer);
+}
+
+graph.addCustomInteraction({
+    onclick: function(evt, graph){
+        Q.log("click");
+        var ui = graph.getUIByMouseEvent(evt);
+        if(ui && ui.data.clickable){
+			viewRepeat(ui.data.properties.data.id);
+        }
+    },
+    ondblclick: function(evt, graph){
+	    Q.log("dblclick");
+		var ui = graph.getUIByMouseEvent(evt);
+		//var color = ui.data.alarmColor;
+		var canvas1 = document.getElementById('canvas');
+        var canvas2 = document.getElementById('canvas2');
+		var ret = document.getElementById('ret');
+		canvas2.style.display = "block";
+		canvas1.style.display = "none";	
+		ret.style.display = "block";
+		var graph = new Q.Graph('canvas2');
+        graph.originAtCenter = true;
+        graph.scale = 0.5;
+		url = "${ctx}/NetworkPhoto_site2.do?id="+ui.data.properties.data.id;
+		var map = {};
+		function createEdge(start, toNode,relation) {
+				var edge;
+				edge = graph.createEdge(start, toNode);
+				edge.info = relation;
+				edge.edgeType = Q.Consts.EDGE_TYPE_ORTHOGONAL_VERTICAL;
+		}
+		function createNode(node){
+					var nodeWithPNG = graph.createNode(node.name);
+					nodeWithPNG.set("data",node);
+					if(node.type == 'AC'){
+					nodeWithPNG.image = "${ctxRoot}/qunee/demos/images/ex1.png";
+					}else if(node.type == '交换机'){
+						nodeWithPNG.image = "${ctxRoot}/qunee/demos/images/exchange.png";
+					}
+					/**if(nodeWithPNG.properties.data.id == ui.data.properties.data.id){
+						nodeWithPNG.alarmColor = color;
+					}*/
+					nodeWithPNG.clickable = true;
+					nodeWithPNG.dblclickable = true;
+					map[node.id] = nodeWithPNG;
+		
+					return nodeWithPNG;
+		}
+		function initTopology(topoNodes,topoRelations) {
+			for (var i = 0; i < topoNodes.length; i++) {
+					var node = createNode(topoNodes[i]);
+				}
+
+			for (var i = 0; i < topoRelations.length; i++) {
+				var relation = topoRelations[i];
+				var nodeFrom = map[relation.from];
+				var nodeTo = map[relation.to];
+				if (nodeFrom && nodeTo) {
+					createEdge(nodeTo,nodeFrom,relation);
+				}
+			}
+		}
+		$.getJSON(mrl,null,function(json){
+		    var arr = json.list;
+		    setTimeout(function A(){
+			graph.forEach(function(element){
+			for(var i = 0;i < arr.length; i++){
+			if(element.properties.data != null){
+			if(arr[i].wId == (element.properties.data.id)){
+				element.alarmColor = AlarmSeverity.CRITICAL.color;	
+			}}}
+			})
+		   },800);	
+       });
+		Q.loadJSON(url,function(json){
+			initTopology(json.nodes, json.relations);
+
+			 graph.callLater(function(){
+
+				var layouter = new Q.TreeLayouter(graph);
+				layouter.parentChildrenDirection = Q.Consts.DIRECTION_BOTTOM;
+				layouter.doLayout();
+				graph.moveToCenter(1, false);
+				graph.zoomToOverview(true,1);
+			})
+			
+		});	
+		graph.addCustomInteraction({
+			onclick: function(evt, graph){
+				Q.log("click");
+				var ui = graph.getUIByMouseEvent(evt);
+				if(ui && ui.data.clickable){
+					viewRepeat(ui.data.properties.data.id);
+			    }
+			}})		
+		}
+});
+
+//详情
+function viewRepeat(id){
+
+    
+    $panel = $("#viewRepeatId");
+    $panel.empty();
+    $panel.load('${ctx}/network_detail_pop.do', {'id': id}, function() { 
+	});
+    $("#viewRepeatId").dialog({
+        closeOnEscape: false,
+        resizable: true,
+        draggable: true,
+        height: 500,
+        width: 800,
+        modal: true,
+        buttons: {
+            "关闭": function () {
+                $(this).dialog("close");
+            }
+        }
+    });
+}
+	 
+	 //设置左右缩进高度
+		var height = $("#NetworkPhoto").height()-10;
+		if(height < 510)
+			height = 510;
+		$("#ztree").height(height);
+		$("#menutree").height($("#ztree").height()+10);
+
+</script>

@@ -1,0 +1,70 @@
+package com.ideal.oms.service;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import com.ideal.oms.entity.MaintainCompany;
+import com.ideal.oms.framework.orm.DynamicSpecifications;
+import com.ideal.oms.framework.orm.SearchFilter;
+import com.ideal.oms.repository.CompanyRepository;
+
+@Service
+public class CompanyService {
+	@Resource
+	private CompanyRepository companyRepository;
+	
+	public Page<MaintainCompany> searchCompanyList(Map<String, Object> searchParams,
+			Pageable pageable) {
+		Map<String, SearchFilter> filters = SearchFilter.parse(searchParams);
+		filters.put("delFlag", new SearchFilter("delFlag",
+				SearchFilter.Operator.EQ, 0));
+		Specification<MaintainCompany> spec = DynamicSpecifications
+				.bySearchFilter(filters.values());
+		Page<MaintainCompany> companylist = companyRepository.findAll(spec, pageable);
+		return companylist;
+	}
+
+	public MaintainCompany findCompanyOne(Long id) {
+		return companyRepository.findOne(id);
+	}
+
+	public void saveCompany(MaintainCompany company) {
+		companyRepository.save(company);
+	}
+
+	public void deleteCompany(Long[] ids) {
+		Iterable<MaintainCompany> companyStates = companyRepository.findAll(Arrays
+				.asList(ids));
+		for (MaintainCompany maintainCompany : companyStates) {
+			maintainCompany.setDelFlag(Long.valueOf(1));
+		}
+		companyRepository.save(companyStates);
+
+	}
+
+	public List<MaintainCompany> findAll() {
+		return companyRepository.findAll();
+	}
+
+	
+
+	public List<MaintainCompany> findCompanyByids(List<Long> ids){
+		return companyRepository.findCompanyByIds(ids);
+	}
+
+	
+	public MaintainCompany findCompanyByName(String companyName) {
+		return companyRepository.findCompanyByName(companyName);
+	}
+	
+
+
+}

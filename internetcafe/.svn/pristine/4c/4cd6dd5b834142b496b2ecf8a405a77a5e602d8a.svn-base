@@ -1,0 +1,89 @@
+package com.ideal.oms.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ideal.oms.framework.entity.AutoModel;
+
+@Entity
+@Table(name = "carousel_figure")
+public class CarouselFigure extends AutoModel implements Serializable {
+
+	private String businessCode;
+	
+	private String businessName;
+	
+	private String imgUrl;
+	
+	private Integer number;
+	
+	private Date createDate;
+	
+	private Long delFlag;
+	
+	public CarouselFigure(){
+		
+	}
+	
+	public CarouselFigure(Long id){
+		super(id);
+	}
+
+	
+	public String getImgUrl() {
+		return imgUrl;
+	}
+
+	public void setImgUrl(String imgUrl) {
+		this.imgUrl = imgUrl;
+	}
+
+	public Integer getNumber() {
+		return number;
+	}
+
+	public void setNumber(Integer number) {
+		this.number = number;
+	}
+
+	public Date getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(Date createDate) {
+		this.createDate = createDate;
+	}
+
+	public Long getDelFlag() {
+		return delFlag;
+	}
+
+	public void setDelFlag(Long delFlag) {
+		this.delFlag = delFlag;
+	}
+
+	public String getBusinessCode() {
+		return businessCode;
+	}
+
+	public void setBusinessCode(String businessCode) {
+		this.businessCode = businessCode;
+	}
+
+	public String getBusinessName() {
+		return businessName;
+	}
+
+	public void setBusinessName(String businessName) {
+		this.businessName = businessName;
+	}
+	
+	
+}

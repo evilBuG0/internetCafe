@@ -1,0 +1,10 @@
+package com.ideal.oms.repository;
+
+import com.ideal.oms.entity.LogVisitor;
+import com.ideal.oms.framework.orm.JpaRepository;
+
+
+public interface LogVisitorRepository extends JpaRepository<LogVisitor, Long> {
+
+
+}

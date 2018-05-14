@@ -1,0 +1,36 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@include file="/WEB-INF/jsp/common/taglib.jsp" %>
+<head>
+</head>
+<form rel="${param.rel}" action="${ctx}/file_upload.do" method="post" enctype="multipart/form-data" onsubmit="return iframeValidate(this);">
+    <input type="hidden" name="id" value="${contractInfo.id}"/>
+    <div class="clearfix">
+        <div class="form_g_li">
+        <label class="col_left_li"> <span>*</span> 附件类型</label>
+            <div class="col_right_li">
+	            <select class="inp required" name="type" style="width: 160px;height: 34px">
+		              <option value="">-请选择附件类型-</option>
+		              <option value="合同附件">合同附件</option>
+		              <option value="网络拓扑图">网络拓扑图</option>
+		              <option value="其他">其他</option>
+		         </select>
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li"> <span>*</span> 附件名称</label>
+            <div class="col_right_li">
+            	<input type="text" class="inp required" name="drawingName"/>
+            </div>
+        </div>
+        <div class="form_g_li" style="width: 450px;">
+            <label class="col_left_li"> <span>*</span> 文件 </label>
+            <div class="col_right_li">
+                <input type="file" class="inp required" name="file" value=""/>
+            </div>
+        </div>
+    </div>
+    <div class="ui_t_foot">
+        <button class="btn" type="button" onclick="win.close();">取消</button>
+        <button class="btn btn-primary" type="submit">确定</button>
+    </div>
+</form>

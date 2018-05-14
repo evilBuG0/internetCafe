@@ -1,0 +1,96 @@
+package com.ideal.oms.entity;
+
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ideal.oms.framework.entity.AutoModel;
+
+@Entity
+@Table(name = "network_drawing")
+public class NetworkDrawing  extends AutoModel {
+	
+	private Long contractId;
+	
+	private String drawingName;//图纸名称
+	
+	private Long companyId;
+	
+	private String content;//附件地址
+	
+	private String type;//附件类型
+	
+	private Date createDate;
+	
+	private Long delFlag;
+
+	public String getDrawingName() {
+		return drawingName;
+	}
+
+	public void setDrawingName(String drawingName) {
+		this.drawingName = drawingName;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public NetworkDrawing(){
+		
+	}
+	
+	public NetworkDrawing(Long id){
+		super(id);
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public Date getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(Date createDate) {
+		this.createDate = createDate;
+	}
+
+	public Long getDelFlag() {
+		return delFlag;
+	}
+
+	public void setDelFlag(Long delFlag) {
+		this.delFlag = delFlag;
+	}
+
+	public Long getCompanyId() {
+		return companyId;
+	}
+
+	public void setCompanyId(Long companyId) {
+		this.companyId = companyId;
+	}
+
+	public Long getContractId() {
+		return contractId;
+	}
+
+	public void setContractId(Long contractId) {
+		this.contractId = contractId;
+	}
+
+}

@@ -1,0 +1,12 @@
+package com.ideal.oms.web.controller.workorder;
+
+import com.ideal.oms.web.controller.UIController;
+
+public class AbstractOrderController extends UIController {
+	public final static String PORTAL_PREFIX = "/workorder";
+
+	@Override
+	public String getPortalPrefix() {
+		return PORTAL_PREFIX;
+	}
+}

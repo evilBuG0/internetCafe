@@ -1,0 +1,159 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ page contentType="text/html;charset=UTF-8" language="java"%>
+<%@include file="/WEB-INF/jsp/common/taglib.jsp"%>
+<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags"%>
+<html>
+<head>
+<title>历史工单</title>
+<style>
+.form-group_li {
+	margin-bottom: 10px;
+}
+</style>
+<style type="text/css">
+.row_height_history {
+	height: auto !important;
+	min-height: 65px !important;
+	overflow: auto;
+}
+</style>
+<script type="text/javascript" language="JavaScript">
+        function reportData(){
+            report('searchForm',{exportData:1});
+        }
+
+        function viewRepeat(id){
+
+            $panel = $("#viewRepeatId");
+            $panel.empty();
+            $panel.load('broken_history.do', {'id': id}, function() { });
+            $("#viewRepeatId").dialog({
+                closeOnEscape: false,
+                resizable: true,
+                draggable: true,
+                height: 500,
+                width: 800,
+                modal: true,
+                buttons: {
+                    "关闭": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+	<div class="breadcrumbs" id="breadcrumbs">
+		<ul class="breadcrumb">
+			<li><i class="icon-home home-icon"></i> <a href="${ctxRoot}">首页</a>
+			</li>
+			<li>工单管理</li>
+			<li class="active">历史工单</li>
+		</ul>
+	</div>
+	<div class="page-content">
+		<form id="searchForm" action="${ctxRoot}/workorder/broken_history.do"
+			method="post" onsubmit="return search(this);">
+			<div class="row_height_s row_height_history" style="height:auto;">
+				
+				<div class="form-group_li">
+					<input type="text" placeholder="报修地址" class="col_d"
+						name="Q_LIKE_equipmentAddress"
+						value="${param.Q_LIKE_equipmentAddress}" />
+				</div>
+				<div class="form-group_li">
+					<input type="text" placeholder="工单编号" class="col_d" name="Q_EQ_workorderNo"
+						value="${param.Q_EQ_workorderNo}" />
+				</div>
+				<!-- <div class="form-group_li">
+					<div class="col_right_li">
+						<select name="Q_EQ_workorderState.id">
+							<option value="">--请选择工单状态--</option>
+							<option value="">派发</option>
+							<option value="">挂起</option>
+							<option value="">解挂</option>
+							<option value="">催修</option>
+						</select>
+					</div>
+				</div> -->
+            	<div class="form-group_li">
+					<div class="col_right_li">
+						<select name="Q_EQ_reportFrom">
+							<option value="">--请选择报障来源--</option>
+							<option value="平台受理" <c:if test="${param.Q_EQ_reportFrom == '平台受理'}">selected</c:if>>平台受理</option>
+							<option value="移动终端" <c:if test="${param.Q_EQ_reportFrom == '移动终端'}">selected</c:if>>移动终端</option>
+						</select>
+					</div>
+				</div>
+				<div class="form-group_li">
+					<input type="text" class="col_d Wdate"
+						data-date-format="yyyy-mm-dd" placeholder="开始时间" name="startTime"
+						value="${param.startTime}" id="startTime"
+						onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',maxDate:'#F{$dp.$D(\'endTime\')}'})" />
+				</div>
+				<div class="form-group_li">
+					<input type="text" class="col_d Wdate"
+						data-date-format="yyyy-mm-dd" placeholder="结束时间" name="endTime"
+						value="${param.endTime}" id="endTime"
+						onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',minDate:'#F{$dp.$D(\'startTime\')}'})" />
+				</div>
+				<div class="form-group_li">
+					<button class="btn btn-primary btn-sm" type="submit">
+						搜索<i class="icon-search icon-on-right bigger-110"></i>
+					</button>
+					<button class="btn btn-primary btn-sm" type="button" onclick="">
+						导出</button>
+				</div>
+			</div>
+		</form>
+		<div class="table-responsive" id="wifiEquip">
+			<table
+				class="table table-striped table-bordered table-hover dataTable">
+				<thead>
+					<tr>
+						<th class="center"><label> <input type="checkbox"
+								class="ace" onclick="checkAll(this);"> <span class="lbl"></span>
+						</label>
+						</th>
+						<th>工单编号</th>
+						<th>工单状态</th>
+						<th>报障来源</th>
+						
+						<th>报修人</th>
+						<th>报修地址</th>
+						<th>报修设备</th>
+						<th>报修时间</th>
+					</tr>
+				</thead>
+
+				<tbody>
+					<c:forEach items="${page.content}" var="item">
+						<tr>
+							<td class="center"><label> <input type="checkbox"
+									class="ace" name="id" value="${item.id}" /> <span class="lbl"></span>
+							</label>
+							</td>
+							<td>${item.workorderNo}</td>
+							<td>${item.workorderState.state}</td>
+							<td>${item.reportFrom }</td>
+							
+							<td>${item.reportPerson }</td>
+							<td>${item.equipmentAddress }</td>
+							<td>${item.wifiEquipment.name }</td>
+							<td>${item.reportDate }</td>
+						</tr>
+					</c:forEach>
+
+					
+				</tbody>
+			</table>
+
+			<div class="row row_height_x message-footer">
+				<tags:page page="${page}" />
+			</div>
+
+		</div>
+	</div>
+</body>
+</html>

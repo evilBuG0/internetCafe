@@ -1,0 +1,29 @@
+package com.ideal.oms.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import com.ideal.oms.entity.Workorder;
+import com.ideal.oms.framework.orm.JpaRepository;
+
+/**
+ * Created by Administrator on 16-2-23.
+ */
+@Repository
+public interface WorkorderRepository extends JpaRepository<Workorder, Long> {
+
+	@Query("SELECT o FROM Workorder o WHERE o.delFlag = 0 and o.workorderState=7 ")
+	public List<Workorder> findsxname();
+
+	@Query("SELECT o FROM Workorder o WHERE o.id = ?1")
+	public Workorder findWorkorderById(Long id);
+	
+	@Query("SELECT o FROM Workorder o WHERE o.delFlag = 0 and o.workorderState=1 and o.readRecord=0 ")
+	public List<Workorder> findRecord();
+	
+	@Query("SELECT o FROM Workorder o WHERE o.delFlag = 0 and o.workorderState!=7 and o.customer.id=?1 ")
+	public List<Workorder>findStateByCustomerId(Long id);
+	
+}

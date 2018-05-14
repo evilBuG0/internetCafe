@@ -1,0 +1,21 @@
+package com.ideal.oms.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import com.ideal.oms.entity.WorkorderHang;
+import com.ideal.oms.framework.orm.JpaRepository;
+
+/**
+ * Created by Administrator on 16-2-23.
+ */
+@Repository
+public interface WorkorderHangRepository extends JpaRepository<WorkorderHang, Long> {
+	@Query("SELECT o FROM WorkorderHang o WHERE o.workorder.id=?1 order by id asc")
+	public List<WorkorderHang> findHangByWorkorderId(Long workOrderId);
+	
+	
+	
+}

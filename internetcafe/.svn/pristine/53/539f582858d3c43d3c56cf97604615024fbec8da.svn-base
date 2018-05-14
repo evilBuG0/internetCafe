@@ -1,0 +1,306 @@
+package com.ideal.oms.web.controller.network;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.ideal.oms.entity.BusinessCode;
+import com.ideal.oms.entity.MaintainContract;
+import com.ideal.oms.entity.NetworkDrawing;
+import com.ideal.oms.entity.NetworkType;
+import com.ideal.oms.entity.WifiEquipment;
+import com.ideal.oms.entity.Workorder;
+import com.ideal.oms.entity.WorkorderOperateRecord;
+import com.ideal.oms.repository.MaintainContractRepository;
+import com.ideal.oms.service.BusinessService;
+import com.ideal.oms.service.NetworDrawingService;
+import com.ideal.oms.service.RecordService;
+import com.ideal.oms.service.WifiEquipmentService;
+import com.ideal.oms.service.WorkorderService;
+
+@Controller
+@RequestMapping(AbstractNetworkController.PORTAL_PREFIX)
+public class NetworkPhotoController extends AbstractNetworkController {
+
+	
+	@Resource
+	private WifiEquipmentService wifiEquipmentService;
+	@Resource
+	private	BusinessService businessService;
+	@Resource
+	private MaintainContractRepository maintainContractRepository;
+	@Resource
+	private NetworDrawingService networDrawingService;
+	@Resource
+	private WorkorderService workorderService;
+	@Resource
+	private RecordService recordService;
+	@RequestMapping("Network")
+	public void network(HttpServletRequest request, Model model) throws Exception {
+		String[] icons = {"w.png","q.png","kl.png","c.png","l.png","kh.png"};
+		List networkTypelist = new ArrayList();
+		List networkTypeList2 = new ArrayList();
+		List<BusinessCode> businessCode =businessService.findAll();
+		Map map = null;
+		for(int i=0;i<businessCode.size();i++){
+			Long id = businessCode.get(i).getId();
+			Long pId = businessCode.get(i).getDelFlag();
+			String name = businessCode.get(i).getBusinessName();
+			String open = "false";
+			String icon = "/safecity/zTree/css/zTreeStyle/img/diy/"+icons[i];
+			String url = "";
+			NetworkType networkType =new NetworkType(id,pId,name,open,icon,url);
+			networkTypelist.add(networkType);
+			List<MaintainContract> maintainContract = maintainContractRepository.findMaintainContractByBusiness(id);
+			if(maintainContract != null){		
+			for(int j=0;j<maintainContract.size();j++){
+			Long customerId = maintainContract.get(j).getCustomer().getId();
+			Long customerpId = id;
+			String customername = maintainContract.get(j).getCustomer().getCustomerName();
+			String customeropen = "";
+			String customericon = "/safecity/zTree/css/zTreeStyle/img/diy/"+icons[5];
+			String customerurl = "";
+			map = new HashMap();
+			map.put("id", customerId);
+			map.put("pId", customerpId);
+			map.put("name", customername);
+			map.put("open", customeropen);
+			map.put("icon", customericon);
+			map.put("url", customerurl);
+			System.out.println("map:"+map);
+			networkTypelist.add(map);
+			networkTypeList2.add(map);
+			}
+		   }
+		}
+		JSONArray networklistStr = JSONArray.fromObject(networkTypelist);
+		JSONArray networklistStr2 = JSONArray.fromObject(networkTypeList2);
+		System.out.println("networklistStr:"+networklistStr);
+     	model.addAttribute("networklistStr",networklistStr);
+     	model.addAttribute("networklistStr2",networklistStr2);
+	}
+	@RequestMapping("network_wifl_pop")
+	public void networkWiflPop(HttpServletRequest request, Model model) throws Exception {
+		String site = request.getParameter("site");
+		site = URLDecoder.decode(site,"UTF-8");
+		model.addAttribute("site", site);
+		Long customerid = Long.parseLong(request.getParameter("customerid"));
+		model.addAttribute("customerid", customerid);
+	}
+	@RequestMapping("network_site")
+	@ResponseBody
+	public JSONObject networkSite(@RequestParam(required = false) String site) throws UnsupportedEncodingException {
+		System.out.println("site:"+site);
+		site = URLDecoder.decode(site,"UTF-8");
+		int flagnum = 0;
+		if (site != null) {
+		List<WifiEquipment> wifiEquipment =	wifiEquipmentService.findAllWifl("%"+site+"%");
+		if(wifiEquipment.size()>30){
+			String t = "AC";
+			String t2 = "交换机";
+			wifiEquipment = wifiEquipmentService.findFirstWifl("%"+site+"%",t,t2);
+			flagnum = 1;
+		}
+		System.out.println("wifiEquipment:"+wifiEquipment);
+		List nodes = new ArrayList();
+		List relations = new ArrayList();
+		Map map = null;
+		Map map2 = null;
+		for(int i=0;i<wifiEquipment.size();i++){
+			Long id = wifiEquipment.get(i).getId();
+			String name = wifiEquipment.get(i).getName();
+			String address =wifiEquipment.get(i).getAddress();
+			String type =wifiEquipment.get(i).getType();
+			String manufacturer = wifiEquipment.get(i).getManufacturer();
+			String equip_type = wifiEquipment.get(i).getEquipType();
+			String super_equip = "";
+			String coverage = wifiEquipment.get(i).getCoverage();
+			Long super_id = 0L;
+			if(wifiEquipment.get(i).getParentEquipment() != null){
+				super_equip = wifiEquipment.get(i).getParentEquipment().getName();
+				super_id = wifiEquipment.get(i).getParentEquipment().getId();
+			}
+	    	map = new HashMap();
+	    	map.put("id", id);
+	    	map.put("site", site);
+	    	map.put("name", name);
+	    	map.put("address", address);
+	    	map.put("type", type);
+	    	map.put("manufacturer", manufacturer);
+	    	map.put("equip_type", equip_type);
+	    	map.put("super_equip", super_equip);
+	    	map.put("coverage", coverage);
+	    	nodes.add(map);
+			
+			map2 = new HashMap();
+			map2.put("from", id);
+			map2.put("to", super_id);
+			relations.add(map2);
+		}
+		JSONObject resultjson = new JSONObject();
+		resultjson.put("nodes", nodes);
+		resultjson.put("relations", relations);
+		resultjson.put("flagnum", flagnum);
+		System.out.println("resultjson :"+resultjson.toString());
+		return resultjson;
+		}
+		return null;
+	}
+	@RequestMapping("network_site_by_id")
+	@ResponseBody
+	public JSONObject networkSiteById(@RequestParam(required = false) long id) {
+		List<WifiEquipment> wifiEquipment =	wifiEquipmentService.findByIdAndPid(id);
+		System.out.println("wifiEquipment:"+wifiEquipment);
+		List nodes = new ArrayList();
+		List relations = new ArrayList();
+		Map map = null;
+		Map map2 = null;
+		Map map3 = null;
+		Map map4 = null;
+		WifiEquipment wifiEquipment2;
+		for(int i=0;i<wifiEquipment.size();i++){
+			Long id2 = wifiEquipment.get(i).getId();
+		    String site = wifiEquipment.get(i).getSite();
+			String name = wifiEquipment.get(i).getName();
+			String address =wifiEquipment.get(i).getAddress();
+			String type =wifiEquipment.get(i).getType();
+			String manufacturer = wifiEquipment.get(i).getManufacturer();
+			String equip_type = wifiEquipment.get(i).getEquipType();
+			String super_equip = "";
+			String coverage = wifiEquipment.get(i).getCoverage();
+			Long super_id = 0L;
+			if(wifiEquipment.get(i).getParentEquipment() != null){
+				super_equip = wifiEquipment.get(i).getParentEquipment().getName();
+				super_id = wifiEquipment.get(i).getParentEquipment().getId();
+			}
+	    	map = new HashMap();
+	    	map.put("id", id2);
+	    	map.put("site", site);
+	    	map.put("name", name);
+	    	map.put("address", address);
+	    	map.put("type", type);
+	    	map.put("manufacturer", manufacturer);
+	    	map.put("equip_type", equip_type);
+	    	map.put("super_equip", super_equip);
+	    	map.put("coverage", coverage);
+	    	nodes.add(map);
+	    	
+			map2 = new HashMap();
+			map2.put("from", id2);
+			map2.put("to", super_id);
+			relations.add(map2);
+		}
+		Long pid = wifiEquipmentService.findWifiEquipmentOne(id).getParentEquipment().getId();
+		Long parent_id = 0L;
+		while(pid != null){
+			wifiEquipment2 = wifiEquipmentService.findWifiEquipmentOne(pid);
+			if(wifiEquipment2.getParentEquipment() != null){	
+				parent_id = wifiEquipment2.getParentEquipment().getId();
+			}else{
+				parent_id = 0L;
+			}
+			map3 = new HashMap();
+			map3.put("id", pid);
+			map3.put("site", wifiEquipment2.getSite());
+			map3.put("name", wifiEquipment2.getName());
+			map3.put("address", wifiEquipment2.getAddress());
+			map3.put("type", wifiEquipment2.getType());
+			nodes.add(map3);
+			map4 = new HashMap();
+			map4.put("from", pid);
+			map4.put("to",parent_id);
+			relations.add(map4);
+			if(wifiEquipment2.getParentEquipment() != null){
+			pid = wifiEquipment2.getParentEquipment().getId();
+			}else{
+				pid = null;
+			}
+		}
+		JSONObject resultjson = new JSONObject();
+		resultjson.put("nodes", nodes);
+		resultjson.put("relations", relations);
+		System.out.println("resultjson :"+resultjson.toString());
+		return resultjson;
+
+	}
+	@RequestMapping("network_site_by_customerid")
+	@ResponseBody
+	public JSONObject networkSiteByCustomerid(@RequestParam(required = false) Long id) {
+        
+		MaintainContract maintainContract = maintainContractRepository.findMaintainContractByCustomer(id);			
+		Long contractId	= maintainContract.getId();
+		List<NetworkDrawing> networkDrawing = networDrawingService.findByContractId(contractId);
+		String  content = networkDrawing.get(0).getContent();
+		content = "/safecity/zTree/css/zTreeStyle/img/diy/"+content;
+		JSONObject resultjson = new JSONObject();
+		resultjson.put("content", content);
+		System.out.println("resultjson:"+resultjson);
+		return resultjson;
+	 }
+	
+	@RequestMapping("network_workorder")
+	@ResponseBody
+    public JSONObject workorder(@RequestParam(required = false) Long id) {
+    
+		List<Workorder> workorder= workorderService.findStateByCustomerId(id);
+		List list = new ArrayList();
+		Map map = null;
+		for(int i=0;i<workorder.size();i++){
+			Long wId = workorder.get(i).getWifiEquipment().getId();
+			String type = workorder.get(i).getWifiEquipment().getType();
+			Long pid = workorder.get(i).getWifiEquipment().getParentEquipment().getId();
+			map = new HashMap();
+			map.put("wId", wId);
+			map.put("type", type);
+			map.put("pid", pid);
+			list.add(map);
+		}
+		JSONObject resultjson = new JSONObject();
+		resultjson.put("list", list);
+		return resultjson;
+    }
+	
+	@RequestMapping("network_detail_pop")
+	public void networkdetailpop(Model model,
+			@RequestParam(value = "id", required = false) Long id) {
+		List<WifiEquipment> WifiEquipmentList = wifiEquipmentService
+				.findWifiEquipmentListByParent();
+		model.addAttribute("WifiEquipmentList", WifiEquipmentList);
+		WifiEquipment wifiEquipmentInfo = null;
+		if (id != null) {
+			wifiEquipmentInfo = wifiEquipmentService.findWifiEquipmentOne(id);
+		}
+		model.addAttribute("wifiEquipmentInfo", wifiEquipmentInfo);
+		
+		Workorder workorderInfo = null;
+		if(id != null){
+			workorderInfo = workorderService.findOneByEquipmentId(id);
+		}
+		model.addAttribute("workorderInfo", workorderInfo);		
+		
+	}
+	@RequestMapping("broken_detail_pop")
+	public void networkbrokendetailpop(Model model,
+			@RequestParam(value = "id", required = false) Long id) {
+		Workorder workorderInfo = workorderService.findWorkorderById(id);
+		model.addAttribute("workorderInfo", workorderInfo);
+		List<WorkorderOperateRecord> recordList = recordService
+				.findWorkorderOperateRecordById(id);
+		model.addAttribute("operateRecord", recordList);
+	}
+}

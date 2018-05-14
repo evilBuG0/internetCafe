@@ -1,0 +1,48 @@
+package com.ideal.oms.service;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import com.ideal.oms.entity.NetworkDrawing;
+import com.ideal.oms.framework.orm.DynamicSpecifications;
+import com.ideal.oms.framework.orm.SearchFilter;
+import com.ideal.oms.repository.NetworkDrawingRepository;
+
+@Service
+public class NetworDrawingService {
+	@Resource
+	private NetworkDrawingRepository networkDrawingRepository;
+	
+	public NetworkDrawing findDrawingOne(Long id) {
+		return networkDrawingRepository.findOne(id);
+	}
+
+	public void saveDrawing(NetworkDrawing drawing) {
+		networkDrawingRepository.save(drawing);
+	}
+
+	public void deleteDrawing(Long[] ids) {
+		Iterable<NetworkDrawing> drawingStates = networkDrawingRepository.findAll(Arrays
+				.asList(ids));
+		for (NetworkDrawing drawingState : drawingStates) {
+			drawingState.setDelFlag(Long.valueOf(1));
+		}
+		networkDrawingRepository.save(drawingStates);
+	}
+	
+	public List<NetworkDrawing> findAll() {
+		return networkDrawingRepository.findAll();
+	}
+
+	public List<NetworkDrawing> findByContractId(Long contractId){
+		return networkDrawingRepository.findByContractId(contractId);
+	}
+}

@@ -1,0 +1,96 @@
+package com.ideal.oms.web.controller.system;
+
+import java.util.Date;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.util.WebUtils;
+
+import com.ideal.oms.entity.MaintainCompany;
+import com.ideal.oms.framework.web.json.JsonObject;
+import com.ideal.oms.service.CompanyService;
+
+@Controller
+@RequestMapping(AbstractSystemController.PORTAL_PREFIX)
+public class CompanyManageController extends AbstractSystemController{
+	Logger logger = LoggerFactory.getLogger(CompanyManageController.class);
+	
+	@Resource
+	private CompanyService companyService;
+
+	@RequestMapping("company_manage")
+	public void index(Model model, HttpServletRequest request) {
+		Map<String, Object> searchParams = WebUtils.getParametersStartingWith(
+				request, "Q_");
+		Sort sort = new Sort(Sort.Direction.DESC, "id");
+		Page<MaintainCompany> page = companyService.searchCompanyList(searchParams,
+				buildPageRequest(request, 5, sort));
+		model.addAttribute("page", page);
+	}
+
+
+	@RequestMapping("edit_company_pop")
+	public void edit(Model model,
+			@RequestParam(value = "id", required = false) Long id) {
+		MaintainCompany companyInfo = null;
+		if (id != null) {
+			companyInfo = companyService.findCompanyOne(id);
+		}
+		model.addAttribute("companyInfo", companyInfo);
+	}
+
+	@RequestMapping("save_company_pop")
+	@ResponseBody
+	public JsonObject save(Model model, @RequestParam(value = "id") Long id,
+			@RequestParam(required = false) String companyName,
+			@RequestParam(required = false) String companyPhone,
+			@RequestParam(required = false) String address,
+			@RequestParam(required = false) String contactPerson,
+			@RequestParam(required = false) String contactPhone,
+			@RequestParam(required = false) String email) {
+		MaintainCompany company = new MaintainCompany();
+		if (id != null) {
+			company = companyService.findCompanyOne(id);
+			company.setcompanyName(companyName);
+			company.setcompanyPhone(companyPhone);
+			company.setAddress(address);
+			company.setContactPerson(contactPerson);
+			company.setContactPhone(contactPhone);
+			company.setEmail(email);
+			company.setModifyDate(new Date());
+			companyService.saveCompany(company);
+		} else {
+			company.setcompanyName(companyName);
+			company.setcompanyPhone(companyPhone);
+			company.setAddress(address);
+			company.setContactPerson(contactPerson);
+			company.setContactPhone(contactPhone);
+			company.setEmail(email);
+			company.setCreateDate(new Date());
+			company.setDelFlag(0L);
+			companyService.saveCompany(company);
+		}
+		return JsonObject.success();
+	}
+
+	@RequestMapping("delete_company_pop.do")
+	@ResponseBody
+	public JsonObject delete(@RequestParam(value = "id") Long[] ids) {
+		if (ids != null) {
+			companyService.deleteCompany(ids);
+		}
+		return JsonObject.success();
+	}
+
+}

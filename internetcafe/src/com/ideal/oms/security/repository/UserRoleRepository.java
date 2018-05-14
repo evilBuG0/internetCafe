@@ -1,0 +1,23 @@
+package com.ideal.oms.security.repository;
+
+import com.ideal.oms.entity.security.Role;
+import com.ideal.oms.entity.security.UserRole;
+import com.ideal.oms.framework.orm.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface UserRoleRepository extends JpaRepository<UserRole, Long> {
+    @Query("SELECT ur.role FROM UserRole ur WHERE ur.user.id=?1")
+    public List<Role> findRoleByUser(Long id);
+
+    @Query("DELETE FROM UserRole ur WHERE ur.user.id=?1")
+    @Modifying
+    public void deleteByUser(Long id);
+
+    @Query("SELECT ur FROM UserRole ur WHERE ur.user.id=?1")
+    public UserRole findUserRoleByUser(Long id);
+}

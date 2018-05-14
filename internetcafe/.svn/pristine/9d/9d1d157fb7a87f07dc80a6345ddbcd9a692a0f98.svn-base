@@ -1,0 +1,98 @@
+package com.ideal.oms.component;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.ideal.oms.entity.DispatchQueue;
+import com.ideal.oms.entity.DispatchQueueRecord;
+import com.ideal.oms.entity.MaintainContract;
+import com.ideal.oms.entity.Workorder;
+import com.ideal.oms.entity.WorkorderOperateRecord;
+import com.ideal.oms.entity.WorkorderState;
+import com.ideal.oms.entity.security.User;
+import com.ideal.oms.security.service.SecurityServiceImp;
+import com.ideal.oms.service.DispatchQueueRecordService;
+import com.ideal.oms.service.DispatchQueueService;
+import com.ideal.oms.service.MaintainContractService;
+import com.ideal.oms.service.RecordService;
+import com.ideal.oms.service.WorkorderService;
+
+@Component
+@Transactional
+@Lazy(false)
+public class SendWorkOrderDistribute {
+	@Resource
+	private WorkorderService workorderService;
+	@Resource
+	private MaintainContractService maintainContractService;
+	@Resource
+	private RecordService recordService;
+	@Resource
+	private SecurityServiceImp securityService;
+	@Resource
+	private DispatchQueueService dispatchQueueService;
+	@Resource
+	private DispatchQueueRecordService dispatchQueueRecordService;
+	
+	@Scheduled(cron = "0 0/5 * * * ?")
+	public void execute() throws Exception {
+		List<DispatchQueue> dispatchQueueList=dispatchQueueService.findAll();
+		List<DispatchQueueRecord> dispatchQueueRecord=new ArrayList<DispatchQueueRecord>();
+		try {
+			for(DispatchQueue dispatchQueue:dispatchQueueList){
+				Workorder workOrder=workorderService.findWorkorderById(dispatchQueue.getWorkorder().getId());
+				MaintainContract maintainContract = maintainContractService
+						.findCompnayByBusinessAndCustomer(workOrder.getBusinessCode().getId(), workOrder.getCustomer().getId());
+				// 如果有对应的代维公司则自动派发
+				List<User> userinfo = new ArrayList<User>();
+				if (maintainContract.getCompany() != null) {
+					// 根据代维公司id，查询角色为代维公司的维修人员，选择该公司的第一个维修人员进行
+					userinfo = securityService.findUserByCompanyId(maintainContract
+							.getCompany().getId());
+				}
+				//向派发队列记录表中添加一条数据
+				DispatchQueueRecord record=new DispatchQueueRecord();
+				record.setDispatchQueue(dispatchQueue);
+				record.setWorkorder(workOrder);
+				record.setBelaidupTime(workOrder.getReportDate());//入库时间
+				record.setSendTime(new Date());
+				record.setWorkorderNo(workOrder.getWorkorderNo());
+				if (userinfo.size() > 0 && maintainContract.getCompany() != null && workOrder.getWorkorderState().getId()==1L) {
+					Workorder temp=workorderService.findWorkorderById(workOrder.getId());
+					temp.setMaintainPerson(userinfo.get(0).getUsername());
+					temp.setMaintainPersonRealname(userinfo.get(0).getRealName());
+					temp.setWorkorderState(new WorkorderState(2L));// 待响应状态
+					workorderService.saveWorkorder(temp);
+					// 向操作记录表中添加一条待响应的记录
+					WorkorderOperateRecord workOrderRecordx = new WorkorderOperateRecord();
+					workOrderRecordx.setWorkorder(workOrder);
+					// workOrderRecordx.setUser(securityService.getLoginUser());
+					workOrderRecordx.setAction("派单");
+					workOrderRecordx.setWorkorderState(new WorkorderState(2L));// 待响应状态
+					workOrderRecordx.setOperateDate(new Date());
+					recordService.saveWorkorderOperateRecord(workOrderRecordx);
+					//派发队列记录发送成功
+					record.setIsSend(0L);
+				}else{
+					//派发队列记录发送失败
+					record.setIsSend(1L);
+				}
+				dispatchQueueRecord.add(record);
+			}
+			dispatchQueueRecordService.saveDispatchQueueList(dispatchQueueRecord);
+			//派发后
+			dispatchQueueService.delDispatchQueue(dispatchQueueList);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		
+	}
+}

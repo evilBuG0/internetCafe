@@ -1,0 +1,64 @@
+package com.ideal.oms.repository;
+
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import com.ideal.oms.entity.WifiEquipment;
+import com.ideal.oms.framework.orm.JpaRepository;
+
+@Repository
+public interface WifiEquipmentRepository extends
+		JpaRepository<WifiEquipment, Long> {
+	@Query("SELECT o FROM WifiEquipment o WHERE o.delFlag = 0")
+	public List<WifiEquipment> findAll();
+
+	@Query("SELECT a FROM WifiEquipment a WHERE a.id IN (?1)")
+	public List<WifiEquipment> findById(Collection<Long> ids);
+	
+	@Query("SELECT a FROM WifiEquipment a WHERE a.id =?1 or a.parentEquipment.id =?2")
+	public List<WifiEquipment> findByIdAndPid(Long id,Long pid);
+	
+	@Query("SELECT a FROM WifiEquipment a WHERE a.customer.id = ?1")
+	public List<WifiEquipment> findWiflIdByCustomer(Long customer_id);
+	
+	@Query("SELECT a FROM WifiEquipment a WHERE a.site like ?1")
+	public List<WifiEquipment> findAllWifl(String site);
+	
+	@Query("SELECT a FROM WifiEquipment a WHERE a.name = ?1")
+	public List<WifiEquipment> findWiflIdBySuperEquip(String SuperEquip);
+	
+
+	@Query("SELECT a FROM WifiEquipment a WHERE a.site like ?1 and (a.type =?2 or a.type = ?3)")
+	public List<WifiEquipment> findFirstWifl(String site,String type,String type2);
+	// @Query("SELECT a FROM WifiEquipment a WHERE a.parentEquipment.id IS NULL AND a.delFlag = 0")
+	// public List<WifiEquipment> findWifiEquipmentListByParent();
+
+	// @Query("SELECT a FROM WifiEquipment a WHERE a.delFlag = 0 AND (a.id = ?1 OR a.parentWifiEquipment.id = ?1)")
+	// public List<WifiEquipment> findRecursion(Long id);
+	//
+	// @Query("SELECT o FROM WifiEquipment o WHERE o.delFlag = 0 AND o.name = ?1")
+	// public WifiEquipment findWifiEquipmentByName(String name);
+	//
+	// @Query("SELECT o FROM WifiEquipment o WHERE o.delFlag = 0 AND o.parentWifiEquipment.id = ?1")
+	// public List<WifiEquipment> findWifiEquipmentListByParentId(Long id);
+	//
+	// @Query("SELECT o FROM WifiEquipment o WHERE o.delFlag = 0 AND o.parentWifiEquipment.id is not null and o.operateUser.id = ?1")
+	// public List<WifiEquipment> findWifiEquipmentByOperateUser(Long userId);
+	//
+	// @Query("SELECT o FROM WifiEquipment o WHERE o.delFlag = 0 AND o.parentWifiEquipment.id = ?1 and o.operateUser.id = ?2")
+	// public List<WifiEquipment> findWifiEquipmentByOperateUser(Long agentId ,
+	// Long userId);
+	//
+	// @Query("SELECT o FROM WifiEquipment o WHERE o.delFlag = 0 AND o.parentWifiEquipment.id is not null and o.dataUser.id = ?1")
+	// public List<WifiEquipment> findWifiEquipmentByDataUser(Long userId);
+	//
+	// @Query("SELECT o FROM WifiEquipment o WHERE o.delFlag = 0 AND o.parentWifiEquipment.id = ?1 and o.dataUser.id = ?2")
+	// public List<WifiEquipment> findWifiEquipmentByDataUser(Long agentId ,
+	// Long userId);
+	//
+	// @Query("SELECT o FROM WifiEquipment o WHERE o.delFlag = 0 AND o.parentWifiEquipment.id IS NULL and o.saleUser.id = ?1")
+	// public List<WifiEquipment> findWifiEquipmentBySaleUser(Long id);
+}

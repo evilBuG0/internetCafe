@@ -1,0 +1,24 @@
+package com.ideal.oms.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import com.ideal.oms.entity.Customer;
+import com.ideal.oms.entity.MaintainCompany;
+import com.ideal.oms.framework.orm.JpaRepository;
+
+@Repository
+public interface CompanyRepository extends JpaRepository<MaintainCompany, Long> {
+	
+	@Query("SELECT o FROM MaintainCompany o WHERE o.delFlag = 0 ")
+	public List<MaintainCompany> findAll();
+	
+	@Query("SELECT o.id FROM MaintainCompany o WHERE o.companyName = ?1 and o.delFlag = 0 ")
+	public MaintainCompany findCompanyByName(String companyName);
+	
+	@Query("SELECT o FROM MaintainCompany o WHERE o.delFlag = 0 and o.id in(?1)")
+	public List<MaintainCompany> findCompanyByIds(List<Long> ids);
+
+}

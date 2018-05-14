@@ -1,0 +1,12 @@
+package com.ideal.oms.web.controller.network;
+
+import com.ideal.oms.web.controller.UIController;
+
+public class AbstractNetworkController extends UIController {
+	public final static String PORTAL_PREFIX = "/network";
+
+	@Override
+	public String getPortalPrefix() {
+		return PORTAL_PREFIX;
+	}
+}

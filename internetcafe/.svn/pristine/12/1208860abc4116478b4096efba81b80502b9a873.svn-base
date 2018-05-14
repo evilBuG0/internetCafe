@@ -1,0 +1,155 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    <%@include file="/WEB-INF/jsp/common/taglib.jsp" %>
+    <%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %>
+    <html>
+    <head>
+	<style>
+		.col_right_li_detail{float:left; width:220px; text-align:left; line-height:30px; font-size : 1.2em;}
+	</style>
+
+    </head>
+    <body style="background-color:#f8f8f8;">
+	<div id="viewRepeatId2" title="工单详情" style="display: none;"></div>
+    <div class="table-responsive">
+		<div class="clearfix">
+        <div class="form_g_li">
+            <label class="col_left_li" style="font-size : 1.2em;"> 设备名称：</label>
+            <div class="col_right_li_detail">
+				${wifiEquipmentInfo.name}
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li" style="font-size : 1.2em;"> 所在场点： </label>
+            <div class="col_right_li_detail">
+            	${wifiEquipmentInfo.site}
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li" style="font-size : 1.2em;"> 设备地址： </label>
+            <div class="col_right_li_detail">
+				${wifiEquipmentInfo.address}
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li" style="font-size : 1.2em;"> 设备种类： </label>
+            <div class="col_right_li_detail">
+            	${wifiEquipmentInfo.type}
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li" style="font-size : 1.2em;"> 设备厂商：</label>
+            <div class="col_right_li_detail">
+            	${wifiEquipmentInfo.manufacturer}
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li" style="font-size : 1.2em;"> 上级设备 </label>
+            <div class="col_right_li_detail">
+            	${wifiEquipmentInfo.parentEquipment.name}
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li" style="font-size : 1.2em;"> 设备类型：</label>
+            <div class="col_right_li_detail">
+            	${wifiEquipmentInfo.equipType}
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li" style="font-size : 1.2em;"> 覆盖范围：</label>
+            <div class="col_right_li_detail">
+            	${wifiEquipmentInfo.coverage}
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li" style="font-size : 1.2em;"> 工程期号：</label>
+            <div class="col_right_li_detail">
+            	${wifiEquipmentInfo.projectNo}
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li" style="font-size : 1.2em;"> 序列号： </label>
+            <div class="col_right_li_detail">
+            	${wifiEquipmentInfo.sequence}
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li" style="font-size : 1.2em;"> IP：</label>
+            <div class="col_right_li_detail">
+            	${wifiEquipmentInfo.ip}
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li" style="font-size : 1.2em;"> 是否启用tr069：</label>
+            <div class="col_right_li_detail">
+            	${wifiEquipmentInfo.enable}
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li" style="font-size : 1.2em;"> 资产编号：</label>
+            <div class="col_right_li_detail">
+            	${wifiEquipmentInfo.zcbh}
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li" style="font-size : 1.2em;"> MESH功能：</label>
+            <div class="col_right_li_detail">
+            	${wifiEquipmentInfo.mesh}
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li" style="font-size : 1.2em;"> MAC地址：</label>
+            <div class="col_right_li_detail">
+            	${wifiEquipmentInfo.macAddress}
+            </div>
+        </div>
+        <div class="form_g_li form_g_li1">
+            <label class="col_left_li" style="font-size : 1.2em;"> 备注：</label>
+            <div class="col_right_li_detail">
+            	${wifiEquipmentInfo.bz}
+            </div>
+        </div>
+		<c:if test="${workorderInfo != null}">
+		<div class="form_g_li">
+            <label class="col_left_li" style="font-size : 1.2em;"> 工单编号：</label>
+            <div class="col_right_li_detail">
+            	${workorderInfo.workorderNo}
+            </div>
+        </div>
+		<div class="form_g_li">
+            <label class="col_left_li" style="font-size : 1.2em;"> 联系电话：</label>
+            <div class="col_right_li_detail">
+            	${workorderInfo.reportPersonPhone}
+            </div>
+        </div>
+		<div class="form_g_li" >
+		<label 	style="font-size : 1.2em;color : red;text-decoration:underline;margin-left:42px;" onclick="viewRepeat2(${workorderInfo.id});">点击查看工单详情</label>
+        </div>
+		</c:if>
+    </div>
+    </div>
+	<script type="text/javascript" language="JavaScript">
+	function viewRepeat2(id){
+            $panel = $("#viewRepeatId2");
+            $panel.empty();
+            $panel.load('${ctx}/broken_detail_pop.do', {'id': id}, function() { });
+            $("#viewRepeatId2").dialog({
+                closeOnEscape: false,
+                resizable: true,
+                draggable: true,
+                height: 600,
+                width: 1000,
+                modal: true,
+                buttons: {
+                    "关闭": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        }
+	</script>
+        </body>
+
+        </html>
+
+

@@ -1,0 +1,12 @@
+package com.ideal.oms.web.controller.source;
+
+import com.ideal.oms.web.controller.UIController;
+
+public class AbstractSourceController extends UIController {
+	public final static String PORTAL_PREFIX = "/source";
+
+	@Override
+	public String getPortalPrefix() {
+		return PORTAL_PREFIX;
+	}
+}

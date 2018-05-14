@@ -1,0 +1,21 @@
+package com.ideal.oms.repository;
+
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import com.ideal.oms.entity.NetworkDrawing;
+import com.ideal.oms.framework.orm.JpaRepository;
+
+@Repository
+public interface NetworkDrawingRepository  extends JpaRepository<NetworkDrawing, Long> {
+	@Query("SELECT o FROM NetworkDrawing o WHERE o.delFlag = 0 ")
+	public List<NetworkDrawing> findAll();
+	
+	@Query("SELECT o FROM NetworkDrawing o WHERE o.contractId = ?1 AND o.delFlag = 0 ")
+	public List<NetworkDrawing> findByContractId(Long contractId);
+}

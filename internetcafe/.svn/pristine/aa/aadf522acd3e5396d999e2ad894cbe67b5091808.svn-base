@@ -1,0 +1,46 @@
+package com.ideal.oms.service;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import com.ideal.oms.entity.Workorder;
+import com.ideal.oms.framework.orm.DynamicSpecifications;
+import com.ideal.oms.framework.orm.SearchFilter;
+import com.ideal.oms.repository.WorkorderRepository;
+
+/**
+ * Created by Administrator on 16-2-23.
+ */
+@Service
+public class WorkorderService {
+	@Resource
+	private WorkorderRepository workorderRepository;
+
+	public Page<Workorder> searchWorkOrderHistory(Collection<SearchFilter> filters,
+			Pageable pageable) {
+		Specification<Workorder> spec = DynamicSpecifications.bySearchFilter(filters);
+		Page<Workorder> workorderList = workorderRepository.findAll(spec,pageable);  
+		return workorderList;
+	}
+
+	public Workorder findWorkorderById(Long id) {
+		return workorderRepository.findWorkorderById(id);
+	}
+	public Workorder saveWorkorder(Workorder workorder){
+		return workorderRepository.save(workorder);
+	}
+	public Iterable<Workorder>  findWorkorderByIds(Long[] ids) {
+		return workorderRepository.findAll(Arrays.asList(ids));
+	}
+	public List<Workorder> findRecord(){
+		return workorderRepository.findRecord();
+	}
+}

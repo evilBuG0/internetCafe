@@ -1,0 +1,195 @@
+package com.ideal.oms.entity;
+
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ideal.oms.framework.entity.AutoModel;
+
+/**
+ * Created by Administrator on 16-2-23.
+ */
+@Entity
+@Table(name = "workorder")
+public class Workorder extends AutoModel {
+
+	private String workorderNo;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "customer_id")
+	@JsonIgnore
+	private Customer customer;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "business_id")
+	@JsonIgnore
+	private BusinessCode businessCode;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "equipment_id")
+	@JsonIgnore
+	private WifiEquipment wifiEquipment;
+	
+	private String troublePhenomenon;
+	private String equipmentAddress;
+	private String troubleDescribe;
+	private String reportPerson;
+	private Long reportFrom;
+	@JoinColumn(name = "maintain_person")
+	private String maintainPerson;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "workorder_state")
+	@JsonIgnore
+	private WorkorderState workorderState;
+
+	private Date reportDate;
+	private Date maintainDate;
+	private String reportPersonRealname;//报修人真实姓名
+	private String maintainPersonRealname;//维修人真实姓名
+
+	private Long delFlag;
+
+	public Workorder() {
+	}
+
+	public Workorder(Long id) {
+		super(id);
+	}
+
+	public Customer getCustomer() {
+		return customer;
+	}
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
+	}
+
+	public BusinessCode getBusinessCode() {
+		return businessCode;
+	}
+
+	public void setBusinessCode(BusinessCode businessCode) {
+		this.businessCode = businessCode;
+	}
+
+	public WifiEquipment getWifiEquipment() {
+		return wifiEquipment;
+	}
+
+	public void setWifiEquipment(WifiEquipment wifiEquipment) {
+		this.wifiEquipment = wifiEquipment;
+	}
+
+	public String getTroublePhenomenon() {
+		return troublePhenomenon;
+	}
+
+	public void setTroublePhenomenon(String troublePhenomenon) {
+		this.troublePhenomenon = troublePhenomenon;
+	}
+
+	public String getEquipmentAddress() {
+		return equipmentAddress;
+	}
+
+	public void setEquipmentAddress(String equipmentAddress) {
+		this.equipmentAddress = equipmentAddress;
+	}
+
+	public String getTroubleDescribe() {
+		return troubleDescribe;
+	}
+
+	public void setTroubleDescribe(String troubleDescribe) {
+		this.troubleDescribe = troubleDescribe;
+	}
+
+	public String getReportPerson() {
+		return reportPerson;
+	}
+
+	public void setReportPerson(String reportPerson) {
+		this.reportPerson = reportPerson;
+	}
+
+	public Long getReportFrom() {
+		return reportFrom;
+	}
+
+	public void setReportFrom(Long reportFrom) {
+		this.reportFrom = reportFrom;
+	}
+
+	public String getMaintainPerson() {
+		return maintainPerson;
+	}
+
+	public void setMaintainPerson(String maintainPerson) {
+		this.maintainPerson = maintainPerson;
+	}
+
+	public WorkorderState getWorkorderState() {
+		return workorderState;
+	}
+
+	public void setWorkorderState(WorkorderState workorderState) {
+		this.workorderState = workorderState;
+	}
+
+	public Date getReportDate() {
+		return reportDate;
+	}
+
+	public void setReportDate(Date reportDate) {
+		this.reportDate = reportDate;
+	}
+
+	public Long getDelFlag() {
+		return delFlag;
+	}
+
+	public void setDelFlag(Long delFlag) {
+		this.delFlag = delFlag;
+	}
+
+	public String getWorkorderNo() {
+		return workorderNo;
+	}
+
+	public void setWorkorderNo(String workorderNo) {
+		this.workorderNo = workorderNo;
+	}
+
+	public Date getMaintainDate() {
+		return maintainDate;
+	}
+
+	public void setMaintainDate(Date maintainDate) {
+		this.maintainDate = maintainDate;
+	}
+
+	public String getReportPersonRealname() {
+		return reportPersonRealname;
+	}
+
+	public void setReportPersonRealname(String reportPersonRealname) {
+		this.reportPersonRealname = reportPersonRealname;
+	}
+
+	public String getMaintainPersonRealname() {
+		return maintainPersonRealname;
+	}
+
+	public void setMaintainPersonRealname(String maintainPersonRealname) {
+		this.maintainPersonRealname = maintainPersonRealname;
+	}
+	
+	
+	
+	
+}

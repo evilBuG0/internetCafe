@@ -1,0 +1,179 @@
+/*
+@charset "utf-8";
+*/
+/* CSS Document *//*
+
+
+@charset "utf-8";
+
+body, html {
+    font-size: 14px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+html, body {
+    height: 100%;
+}
+body, html {
+}
+body {
+    font-family: "宋体";
+    line-height: 1;
+}
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td {
+    background: none repeat scroll 0 0 transparent;
+    border: 0 none;
+    font-size: 100%;
+    margin: 0;
+    outline: 0 none;
+    padding: 0;
+    vertical-align: baseline;
+}
+
+.login_m .content iframe {
+    overflow: hidden;
+}
+.bg_login{
+	height: 100%;
+    left: 0;
+    position: fixed;
+    text-align: center;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+.bgbgs {
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+.login_box{background:url(../images/login_box.png) no-repeat; width:412px; height:276px; position:absolute; top:10%; margin:0 auto; left:33%; padding-top:210px}
+
+.login_tab{width:69%; margin:0 auto}
+.login_tab td{}
+.lgk {background:#ddd; width:100%; line-height:40px; height:40px;margin-bottom:20px;-moz-border-radius: 3px;      
+    -webkit-border-radius: 3px;   
+    border-radius:3px;}
+.lgk input{border:none; background:#ddd; color: #484848; font-size:14px;font-family:Microsoft Yahei;}
+.lgk .user_name{font-family:Microsoft Yahei; color: #484848;padding-left: 10px}
+.lgk_b{background:#fff;}
+.lgk_b input{background:#428ede; height:42px; line-height:42px; width:100%; margin-top:20px; color:#fff;font-family:Microsoft Yahei; font-size:24px;-moz-border-radius: 3px;      
+    -webkit-border-radius: 3px;   
+    border-radius:3px;}
+.lgk_b input:hover{cursor:pointer; background:#437bb6}
+*/
+
+@charset "utf-8";
+/* CSS Document */
+* { margin:0; padding:0;}
+body { margin:0 auto; font-size:12px; position:static; color:#616b93; font-family:Arial, Helvetica, sans-serif, "SimSun";}
+ul, dl, dd, h1, h2, h3, h4, h5, h6, form, p { margin:0; padding:0;}
+img { border:none; vertical-align:middle}
+ul { list-style:none;}
+.clear { clear:both;}
+a { color:#616b93; text-decoration:none;}
+a:hover {  text-decoration:none;}
+a, area { blr:expression(this.onFocus=this.blur());}
+input { outline:0; cursor:pointer}
+/* for IE */
+a:focus { outline:0;}
+.left{ float:left;}
+.right{ float:right;}
+.none{ display:none;}
+.clearfix:after{ display:block; font-size:0; content:"."; clear:both; height:0; visibility:hidden;}
+*html .clearfix{ height:1%;}
+
+
+/*  10.29登录界面 新增  */
+.login_bac {
+    background: #f4f4f4
+}
+
+.login_header {
+    width: 980px;
+    margin: 35px auto;
+    font: 12px/24px "Microsoft YaHei";
+}
+
+.login_logo {
+    background: url(../images/logo_lo.png) no-repeat;
+    width: 235px;
+    height: 40px
+}
+
+.login_header_text span {
+    color: #457fc7;
+}
+
+.login_content {
+    -moz-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    -webkit-border-bottomradius: 5px;
+    border-radius: 5px;
+    background: #4b8cce url(../images/bac_box.png) no-repeat right bottom;
+    width: 980px;
+    margin: 0 auto;
+    height: 430px
+}
+
+.login_content_pic {
+    background: url(../images/login_bac.png) no-repeat center center;
+    width: 570px;
+    height: 430px
+}
+
+.login_content_box {
+    background: url(../images/login_form.png) no-repeat;
+    width: 295px;
+    height: 268px;
+    margin: 27px 0 0 0;
+    padding: 100px 30px 30px 30px
+}
+
+.login_content_box_inp {
+    -moz-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    -webkit-border-bottomradius: 3px;
+    border-radius: 3px;
+    background: #fff;
+    border: 1px solid #b3b3b3;
+    width: 260px;
+    height: 40px;
+    margin-bottom: 25px
+}
+
+.login_content_box_inp span {
+    line-height: 40px;
+    padding-left: 10px;
+    font: 14px/40px "Microsoft YaHei";
+    color: #616161
+}
+
+.login_content_box_inp input {
+    font: 14px/24px "Microsoft YaHei";
+    padding-left: 5px;
+    width: 170px;
+    border: none;
+}
+
+.login_b {
+    background: #508ad1;
+    color: #fff;
+    border: none;
+    font: 18px/40px "Microsoft YaHei";
+    margin-top: 10px
+}
+
+.login_b:hover {
+    background: #427dc5
+}
+
+.shadow {
+    background: url(../images/shadow.png) no-repeat top center;
+    width: 980px;
+    height: 23px;
+    margin: 0 auto
+}
+

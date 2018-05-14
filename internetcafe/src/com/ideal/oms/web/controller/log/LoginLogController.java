@@ -1,0 +1,57 @@
+package com.ideal.oms.web.controller.log;
+
+
+import com.ideal.oms.entity.LogLogin;
+import com.ideal.oms.framework.orm.SearchFilter;
+import com.ideal.oms.service.LogLoginService;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.util.WebUtils;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Map;
+
+@Controller
+@RequestMapping(AbstractLogController.PORTAL_PREFIX)
+public class LoginLogController extends AbstractLogController {
+    private static Logger logger = LoggerFactory.getLogger(VisitorLogController.class);
+
+    @Resource
+    private LogLoginService logLoginService;
+
+    @RequestMapping("query_login_log")
+    public void queryLoginLog(Model model, HttpServletRequest request,
+                              @RequestParam(value = "Q_startTime", required = false) String startTime,
+                              @RequestParam(value = "Q_endTime", required = false) String endTime) throws Exception{
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        Map<String, Object> searchParams = WebUtils.getParametersStartingWith(request, "Q_");
+        Map<String, SearchFilter> filters = SearchFilter.parse(searchParams);
+        Collection<SearchFilter> searchFilters = new ArrayList<SearchFilter>(filters.values());
+        if(StringUtils.isNotBlank(startTime)){
+            searchFilters.add(new SearchFilter("createTime", SearchFilter.Operator.GTE, dateFormat.parse(startTime)));
+        }
+        if(StringUtils.isNotBlank(endTime)){
+            Calendar endCalendar =  Calendar.getInstance();
+            endCalendar.setTime(dateFormat.parse(endTime));
+            endCalendar.add(Calendar.MINUTE, 1);
+            searchFilters.add(new SearchFilter("createTime", SearchFilter.Operator.LT, endCalendar.getTime()));
+        }
+        Pageable pageable = buildPageRequest(request, 15, new Sort(Sort.Direction.DESC, "id"));
+        Page<LogLogin> page = logLoginService.findLogLogin(searchFilters, pageable);
+        model.addAttribute("page", page);
+        logger.debug("end........................................................");
+    }
+}

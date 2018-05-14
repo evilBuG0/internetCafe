@@ -1,0 +1,19 @@
+package com.ideal.oms.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import com.ideal.oms.entity.MaintainContract;
+import com.ideal.oms.framework.orm.JpaRepository;
+
+/**
+ * Created by Administrator on 16-2-23.
+ */
+@Repository
+public interface MaintainContractRepository extends JpaRepository<MaintainContract, Long> {
+
+	@Query("SELECT o FROM MaintainContract o WHERE o.delFlag = 0 and o.businessCode.id=?1")
+	public List<MaintainContract> findMaintainContractByBusiness(Long business_id);
+}

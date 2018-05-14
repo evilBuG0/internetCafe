@@ -1,0 +1,69 @@
+<%@ page import="org.apache.shiro.subject.Subject" %>
+<%@ page import="org.apache.shiro.SecurityUtils" %>
+<%@ page import="com.ideal.oms.security.ShiroDbRealm" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@include file="/WEB-INF/jsp/common/taglib.jsp" %>
+<%
+    Subject subject = SecurityUtils.getSubject();
+    ShiroDbRealm.ShiroUser shiroUser = (ShiroDbRealm.ShiroUser) subject.getPrincipal();
+    if (shiroUser != null) {
+        String uri = request.getContextPath();
+        response.sendRedirect(uri + "/main/home_page.do");
+    }
+%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@include file="/WEB-INF/jsp/common/taglib.jsp" %>
+<link href="${ctxRoot}/static/css/login.css" rel="stylesheet" type="text/css"/>
+<html>
+<head>
+    <title>Login</title>
+    <script src="${ctxRoot}/static/js/scriptLib.js"></script>
+    <script>
+        function checkLogin() {
+            with (document) {
+                var userName = getElementById("username");
+                var password = getElementById("password");
+                if (isEmpty(userName.value)) {
+                    alert("用户名不能为空！");
+                    userName.focus();
+                    return false;
+                }
+                if (isEmpty(password.value)) {
+                    alert("密码不能为空！");
+                    password.focus();
+                    return false;
+                }
+                return true;
+            }
+        }
+    </script>
+</head>
+<body class="login_bac">
+<form action="${ctxRoot}/jsp/login.jsp" method="post" onsubmit="return checkLogin();">
+    <div style="width: auto;text-align: center;" >
+        <div class="login_header clearfix">
+            <div <%--class="login_logo left"--%>>&nbsp;</div>
+            <div class="login_header_text right">&nbsp;</div>
+            <div class="clear"></div>
+        </div>
+        <div class="login_content png_bg">
+            <div class="login_content_pic left"></div>
+            <div class="login_content_box left">
+                <div class="login_content_box_inp">
+                    <span>用户名</span>
+                    <input name="username" id="username" type="text" value = "admin"/>
+                </div>
+                <div class="login_content_box_inp">
+                    <span>密　码</span>
+                    <input name="password" id="password" type="password" value = "admin123"/>
+                </div>
+                <div style="text-align: left; border: 0px;">
+                    <input name="" type="submit" class="login_content_box_inp login_b" value="登　　录"/>
+                </div>
+            </div>
+        </div>
+        <div class="shadow"></div>
+    </div>
+</form>
+</body>
+</html>

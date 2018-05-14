@@ -1,0 +1,155 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ page contentType="text/html;charset=UTF-8" language="java"%>
+<%@include file="/WEB-INF/jsp/common/taglib.jsp"%>
+<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags"%>
+<head>
+ 	<link rel="stylesheet" href="${ctxRoot}/static/framework/selectator/fm.selectator.jquery.css" type="text/css">
+    <script src="${ctxRoot}/static/framework/selectator/fm.selectator.jquery.js"></script>
+    <script>
+	    $(function () {
+	        var $customer_pop = $("#customer_pop");
+	            $customer_pop.selectator({
+	                useDimmer: false
+	            });
+	            
+            var $company_pop = $("#company_pop");
+            $company_pop.selectator({
+                useDimmer: true
+            });
+            
+
+	    });
+    </script>
+</head>
+<form action="${ctx}/save_contract_pop.do" method="post" onsubmit="return validate(this)">
+    <input type="hidden" name="id" value="${contractInfo.id}">
+    <div class="clearfix">
+        <div class="form_g_li">
+            <label class="col_left_li"> <span>*</span>合同编号</label>
+            <div class="col_right_li">
+                <c:choose>
+                    <c:when test="${contractInfo.id != null}">
+                        <input type="text" class="inp" name="contract_no"
+                               value="${contractInfo.contractNo}"/>
+                    </c:when>
+                    <c:otherwise>
+                        <input type="text" class="inp required" name="contract_no"/>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li"> <span>*</span>合同金额</label>
+            <div class="col_right_li">
+                <c:choose>
+                    <c:when test="${contractInfo.id != null}">
+                        <input type="text" class="inp" name="amount"
+                               value="${contractInfo.amount}"/>
+                    </c:when>
+                    <c:otherwise>
+                        <input type="text" class="inp required" name="amount"/>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+         <div class="form_g_li">
+            <label class="col_left_li"> <span>*</span>客户名称</label>
+            <div class="col_right_li">
+                <c:choose>
+                    <c:when test="${contractInfo.id != null}">
+                    	<select name="customerId" style="width: 160px;height: 34px" <c:if test="${contractInfo!=null}">disabled</c:if>>
+			              <option value="">-请选择客户-</option>
+			              <c:forEach var="item" items="${list_customer}">
+			                <option value="${item.id}" <c:if test="${item.id==contractInfo.customer.id}">selected</c:if>>${item.customerName}</option>
+			              </c:forEach>
+			            </select>
+            		</c:when>
+                    <c:otherwise>
+	                    <select name="customerId" id="customer_pop" style="width: 160px;height: 34px">
+			              <option value="">-请选择客户-</option>
+			              <c:forEach var="item" items="${list_customer}">
+			                <option value="${item.id}" <c:if test="${item.id==contractInfo.customer.id}">selected</c:if>>${item.customerName}</option>
+			              </c:forEach>
+			            </select>
+                    </c:otherwise>
+                </c:choose>
+                
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li"> <span>*</span>代维公司</label>
+            <div class="col_right_li">
+             	<c:choose>
+                    <c:when test="${contractInfo.id != null}">
+	                    <select name="companyId" style="width: 160px;height: 34px" <c:if test="${contractInfo!=null}">disabled</c:if>>
+			              <option value="">-请选择代维公司-</option>
+			              <c:forEach var="item" items="${list_company}">
+			                <option value="${item.id}" <c:if test="${item.id==contractInfo.company.id}">selected</c:if>>${item.companyName}</option>
+			              </c:forEach>
+		            	</select>
+                    </c:when>
+                    <c:otherwise>
+	                    <select name="companyId" id="company_pop" style="width: 160px;height: 34px">
+			              <option value="">-请选择代维公司-</option>
+			              <c:forEach var="item" items="${list_company}">
+			                <option value="${item.id}" <c:if test="${item.id==contractInfo.company.id}">selected</c:if>>${item.companyName}</option>
+			              </c:forEach>
+		            	</select>
+                    </c:otherwise>
+                </c:choose>
+              	
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li"> <span>*</span>业务类型</label>
+            <div class="col_right_li">
+                <select class="inp required" name="businessCodeId" style="width: 200px;padding: 5px 10px;">
+                    <c:forEach var="row" items="${businessCodeList}">
+                        <option value="${row.id}" <c:if test="${row.id==contractInfo.businessCode.id}">selected</c:if>>${row.businessName}</option>
+                    </c:forEach>
+                </select>
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li"><span>*</span>合同状态</label>
+            <div class="col_right_li">
+                <select class="inp required" name="state" style="width: 200px;padding: 5px 10px;">
+                    <c:forEach var="row" items="${stateList}">
+                        <option value="${row.id}" <c:if test="${row.id==contractInfo.state.id}">selected</c:if>>${row.name}</option>
+                    </c:forEach>
+                </select>
+            </div>
+        </div>
+       <div class="form_g_li">
+            <label class="col_left_li"><span>*</span> 开始日期 </label>
+            <div class="col_right_li">
+                <input type="text" class="inp Wdate" data-date-format="yyyy-mm-dd" name="startDate" id="startDate" 
+                value="${userInfo.startDate}" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',maxDate:'#F{$dp.$D(\'endDate\')}'})" />
+            </div>
+        </div>
+        <div class="form_g_li">
+            <label class="col_left_li"><span>*</span> 结束日期 </label>
+            <div class="col_right_li">
+                <input type="text" class="inp Wdate" data-date-format="yyyy-mm-dd" name="endDate" id="endDate" 
+                value="${userInfo.endDate}" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',minDate:'#F{$dp.$D(\'startDate\')}'})" />
+            </div>
+        </div>
+        <div>
+            <label class="col_left_li"><span>*</span> 合同内容 </label>
+           		<c:choose>
+                    <c:when test="${contractInfo.id != null}">
+		                <textarea style="width:580px;height:120px" class="inp" name="content">${contractInfo.content}
+		                </textarea>
+	                </c:when>
+	                 <c:otherwise>
+	                     <textarea style="width:580px;height:120px class="inp required" name="content">
+		                </textarea>
+	                 </c:otherwise>
+             	</c:choose>
+        </div>
+    </div>
+    <div class="ui_t_foot">
+        <button class="btn" type="button" onclick="win.close();">取消</button>
+        <button class="btn btn-primary" type="submit">确定</button>
+    </div>
+</form>

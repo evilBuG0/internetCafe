@@ -1,0 +1,65 @@
+package com.ideal.oms.web.controller.user;
+
+import com.ideal.oms.entity.security.User;
+import com.ideal.oms.framework.web.json.JsonObject;
+import com.ideal.oms.framework.web.message.WebMessageLevel;
+import com.ideal.oms.security.SecurityService;
+import com.ideal.oms.security.ShiroDbRealm;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.shiro.SecurityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.annotation.Resource;
+
+/**
+ * Created by dell on 15-3-2.
+ */
+@Controller
+@RequestMapping(UserController.PORTAL_PREFIX)
+public class UserController extends AbstractUserController {
+	private final static Logger logger = LoggerFactory
+			.getLogger(UserController.class);
+
+	@Resource
+	private SecurityService accountService;
+
+	@RequestMapping("modify_user_password")
+	public void modifyUserPwd(Model model) {
+		ShiroDbRealm.ShiroUser user = (ShiroDbRealm.ShiroUser) SecurityUtils
+				.getSubject().getPrincipal();
+		model.addAttribute("userName", user.getUsername());
+	}
+
+	@RequestMapping("modify_pwd")
+	@ResponseBody
+	public JsonObject modifyPwdByLoginName(String userName, String oldPwd,
+			String newPwd) {
+		JsonObject j = null;
+		try {
+			User user = accountService.findUserByUsername(userName);
+			if (user != null
+					&& user.getPassword().equals(DigestUtils.md5Hex(oldPwd))) {
+				user.setPassword(DigestUtils.md5Hex(newPwd));
+				User newUser = accountService.updateUserPwd(user);
+				if (newUser != null) {
+					j = JsonObject.alert("密码修改成功，请重新登录！",
+							WebMessageLevel.SUCCESS);
+				} else {
+					j = JsonObject.alert("密码修改失败！", WebMessageLevel.ERROR);
+				}
+			} else {
+				j = JsonObject.alert("原密码不正确", WebMessageLevel.ERROR);
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			j = JsonObject.alert("系统异常", WebMessageLevel.ERROR);
+		} finally {
+			return j;
+		}
+	}
+}

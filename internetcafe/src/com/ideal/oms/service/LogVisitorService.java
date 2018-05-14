@@ -1,0 +1,54 @@
+package com.ideal.oms.service;
+
+
+import com.ideal.oms.entity.LogVisitor;
+import com.ideal.oms.framework.orm.DynamicSpecifications;
+import com.ideal.oms.framework.orm.SearchFilter;
+import com.ideal.oms.repository.LogVisitorRepository;
+import com.ideal.oms.util.ContextUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import javax.annotation.Resource;
+import java.util.Collection;
+import java.util.Date;
+
+
+@Service
+@Transactional
+public class LogVisitorService {
+    private Logger logger = LoggerFactory.getLogger(LogVisitorService.class);
+    @Resource
+    private LogVisitorRepository logVisitorRepository;
+
+    public Page<LogVisitor> findLogVisitor(Collection<SearchFilter> filters, Pageable pageable){
+        Specification<LogVisitor> specification = DynamicSpecifications.bySearchFilter(filters);
+        Page<LogVisitor> page = logVisitorRepository.findAll(specification, pageable);
+        return page;
+    }
+
+
+    public LogVisitor saveLogVisitor(String url, String parameter, String ip){
+        LogVisitor logVisitor = null;
+        try {
+            logVisitor = new LogVisitor();
+            logVisitor.setUrl(url);
+            logVisitor.setParameter(parameter);
+            if (ContextUtils.getUser() != null) {
+                logVisitor.setCreateUser(ContextUtils.getUser().getUsername());
+            }
+            logVisitor.setCreateIp(ContextUtils.getIp());
+            logVisitor.setCreateTime(new Date());
+            return logVisitorRepository.save(logVisitor);
+        }
+        catch (Exception ex){
+            ex.printStackTrace();
+            logger.debug(ex.getMessage());
+        }
+        return logVisitor;
+    }
+}

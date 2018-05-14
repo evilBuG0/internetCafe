@@ -1,0 +1,56 @@
+package com.ideal.oms.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+import com.ideal.oms.framework.entity.AutoModel;
+
+@Entity
+@Table(name = "dispatch_queue")
+public class DispatchQueue extends AutoModel implements Serializable {
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "workorder_id")
+	private Workorder workorder;
+	private Date createDate;
+	private String workorderNo;
+	
+	public DispatchQueue() {
+	}
+
+	public DispatchQueue(Long id) {
+		super(id);
+	}
+
+	public Workorder getWorkorder() {
+		return workorder;
+	}
+
+	public void setWorkorder(Workorder workorder) {
+		this.workorder = workorder;
+	}
+
+	public Date getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(Date createDate) {
+		this.createDate = createDate;
+	}
+
+	public String getWorkorderNo() {
+		return workorderNo;
+	}
+
+	public void setWorkorderNo(String workorderNo) {
+		this.workorderNo = workorderNo;
+	}
+	
+	
+
+}

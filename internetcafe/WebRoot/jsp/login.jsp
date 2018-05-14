@@ -1,4 +1,4 @@
-<%@ page import="org.apache.shiro.subject.Subject" %>
+ <%@ page import="org.apache.shiro.subject.Subject" %>
 <%@ page import="org.apache.shiro.SecurityUtils" %>
 <%@ page import="com.ideal.oms.security.ShiroDbRealm" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
